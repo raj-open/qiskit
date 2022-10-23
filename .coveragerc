@@ -1,0 +1,22 @@
+[run]
+source="."
+
+[report]
+show_missing = true
+omit =
+    # ignore tests folder
+    tests/*
+    # ignore thirdparty imports
+    src/thirdparty/*
+    # ignore models folder (auto generated)
+    models/**
+    # ignore __init__ files (only used for exports)
+    **/__init__.py
+    # ignore main.py, app.py (-> too macroscopic and covered by integration tests)
+    main.py
+    src/app.py
+# TODO: increase code-coverage:
+fail_under = 100
+precision = 1
+exclude_lines =
+    pragma: no cover
