@@ -10,6 +10,8 @@ from IPython.display import display_latex;
 from IPython.display import display_png;
 from IPython.display import display_markdown;
 from IPython.display import display;
+import ipywidgets as widgets;
+# from array_to_latex import to_ltx as array_to_latex; # <- has issues
 from qiskit.visualization import array_to_latex;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -17,10 +19,11 @@ from qiskit.visualization import array_to_latex;
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'Latex',
-    'display',
-    'display_latex',
-    'display_png',
-    'display_markdown',
     'array_to_latex',
+    'display_latex',
+    'display_markdown',
+    'display_png',
+    'display',
+    'Latex',
+    'widgets',
 ];
