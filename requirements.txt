@@ -1,6 +1,12 @@
-pip>=22.2.2
+pip>=22.3
 wheel>=0.37.1
+
+# jupyter
 ipython>=8.3.0
+jupyter>=1.0.0
+widgetsnbextension>=3.6.1
+# ipywidgets>=8.0.2
+ipywidgets==7.7.2
 
 # running
 anyio>=3.5.0
@@ -14,7 +20,7 @@ pytest>=7.1.1
 pytest-asyncio>=0.18.3
 pytest-cov>=3.0.0
 pytest-lazy-fixture>=0.6.3
-pytest-order>=1.0.1 # need this to prioritise some tests
+pytest-order>=1.0.1
 testfixtures>=6.18.5
 
 # misc
@@ -33,7 +39,7 @@ typing-extensions==3.10.0.2 # <- need this instead of >= 4.2.0 for compatibility
 python-dotenv>=0.20.0
 jsonschema>=4.4.0
 lazy-load>=0.8.2
-pyyaml==5.4.1
+pyyaml>=6.0
 pydantic>=1.9.1
 datamodel-code-generator>=0.12.0
 
