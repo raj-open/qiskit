@@ -1,0 +1,52 @@
+pip>=22.2.2
+wheel>=0.37.1
+ipython>=8.3.0
+
+# running
+anyio>=3.5.0
+aiohttp>=3.8.1
+asyncio>=3.4.3
+codetiming>=1.3.0
+
+# testing + dev
+coverage[toml]>=6.4
+pytest>=7.1.1
+pytest-asyncio>=0.18.3
+pytest-cov>=3.0.0
+pytest-lazy-fixture>=0.6.3
+pytest-order>=1.0.1 # need this to prioritise some tests
+testfixtures>=6.18.5
+
+# misc
+importlib>=1.0.4
+authlib>=1.0.1
+passlib>=1.7.4
+psutil>=5.9.0
+pathlib>=1.0.1
+lorem>=0.1.1
+safetywrap>=1.5.0
+typing>=3.7.4.3
+nptyping>=2.1.1
+typing-extensions==3.10.0.2 # <- need this instead of >= 4.2.0 for compatibility with tgintegration
+
+# config
+python-dotenv>=0.20.0
+jsonschema>=4.4.0
+lazy-load>=0.8.2
+pyyaml==5.4.1
+pydantic>=1.9.1
+datamodel-code-generator>=0.12.0
+
+# maths
+numpy>=1.22.4
+openqasm3>=0.0.1
+
+# data frames and storage
+pandas>=1.4.2
+
+# quantum computing
+qiskit[visualization]>=0.38.0
+pylatexenc>=2.10 # <- needed with qiskit for rendering
+seaborn>=0.11.2 # <- needed with qiskit for rendering
+# git+https://github.com/qiskit-community/qiskit-textbook.git#subdirectory=qiskit-textbook-src
+qiskit-textbook>=0.1.0

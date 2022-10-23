@@ -1,0 +1,59 @@
+[project]
+name = "course-qiskit"
+version = "X.Y.Z"
+description = ""
+authors = [ "github.com/RLogik" ]
+maintainers = [ "github.com/RLogik" ]
+license = "MIT"
+readme = "README.md"
+python = "^3.10"
+homepage = "https://github.com/RLogik/qiskit-course"
+repository = "https://github.com/RLogik/qiskit-course"
+documentation = "https://github.com/RLogik/qiskit-course/src/README.md"
+keywords = [
+    "python",
+    "qiskit",
+    "quantum computing",
+]
+# cf. https://pypi.org/classifiers
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: Unix",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+]
+
+[tool.pytest.ini_options]
+minversion = "7.1.1"
+testpaths = [
+    "tests",
+]
+python_files = [
+    "**/tests_*.py",
+]
+asyncio_mode = "auto"
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+# NOTE: appends (not prepends) flags:
+addopts = [
+    "--order-dependencies",
+    "--order-group-scope=module",
+    "--cache-clear",
+    "--verbose",
+    "--maxfail=1",
+    "-k test_",
+    # NOTE: will be ignored, if --cov not used (e.g. integration tests):
+    "--no-cov-on-fail",
+    "--cov-report=term",
+    "--cov-config=.coveragerc",
+    # NOTE: for development purposes only:
+    # "-s", # verbose print/err capturing disabled
+    # "--capture=tee-sys", # verbose print/err capturing enabled
+]
