@@ -132,7 +132,7 @@ run:
     @echo "Not implemented!"
 
 # runs python notebook (in browser)
-notebook name="main":
+notebook name="examples":
     @# create config/data folders if missing:
     @just build-misc
     @# run notebook
