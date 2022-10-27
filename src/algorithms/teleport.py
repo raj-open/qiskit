@@ -7,6 +7,7 @@
 
 from src.thirdparty.maths import *;
 from src.thirdparty.quantum import *;
+from src.thirdparty.types import *;
 
 from src.core.log import *;
 
@@ -17,20 +18,25 @@ from src.core.log import *;
 __all__ = [
     'teleportation_protocol',
     'teleportation_protocol_test',
-    'random_unitary_gate',
+    'random_unitary_parameters',
 ];
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def teleportation_protocol_test() -> QuantumCircuit:
+def teleportation_protocol_test() -> tuple[QuantumCircuit, list[QkParameter]]:
     '''
     Constructs a Quantum-Circuit for the entire teleportation protocoll
     including at the start the generation via a random unitary U
     of a state to be teleported, and at the end the inversion of U,
     to test that the state was teleported accurately.
     '''
+    theta1 = QkParameter('$\\theta_{1}$');
+    theta2 = QkParameter('$\\theta_{2}$');
+    theta3 = QkParameter('$\\theta_{3}$');
+    u, u_inv = qk_unitary_gate_pair(theta1, theta2, theta3);
+
     q_state = QuantumRegister(1, 'state');
     q_alice = QuantumRegister(1, 'alice');
     q_bob = QuantumRegister(1, 'bob');
@@ -38,7 +44,6 @@ def teleportation_protocol_test() -> QuantumCircuit:
     circuit = QuantumCircuit(q_state, q_alice, q_bob, m);
 
     # PRE-PROCESSING:
-    u, u_inv = random_unitary_gate();
     circuit.append(entangle_pair(), [1,2]);
     circuit.barrier([0,1,2]);
     circuit.append(u, [0]);
@@ -51,7 +56,7 @@ def teleportation_protocol_test() -> QuantumCircuit:
     circuit.measure(2, 2);
 
     circuit.name = 'Teleport-Test';
-    return circuit;
+    return circuit, circuit.parameters;
 
 def teleportation_protocol(include_entanglement: bool = True) -> QuantumCircuit:
     '''
@@ -76,6 +81,10 @@ def teleportation_protocol(include_entanglement: bool = True) -> QuantumCircuit:
     circuit.name = 'Teleport';
     return circuit;
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# AUXILIARY METHODS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 def entangle_pair() -> QkGate:
     circuit = QuantumCircuit(2);
     circuit.h(0);
@@ -84,29 +93,12 @@ def entangle_pair() -> QkGate:
     gate.name = 'EPR';
     return gate;
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# AUXILIARY METHODS
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-def random_unitary_gate(label: str = 'U') -> tuple[QkGate, QkGate]:
+def random_unitary_parameters(n: int) -> list[QkOperator]:
     '''
-    Constructs an arbitrary unitary operator and its inverse,
-    so that for test purposes one can generate
-    an arbtirary state from the 0-state.
+    @inputs
+    - `n` - <integer> the number of desired unitaries
+
+    @returns
+    a list of parameter values to generate random unitaries.
     '''
-    # NOTE: qiskit has a built-in method.
-    # # generate random parameters
-    # x = np.exp(2j*np.pi*np.random.rand(4));
-    # x = x / np.abs(x); # force magnitude = 1
-    # a, b, c, z = x;
-    # # random rotation matrix:
-    # R = np.asarray([[z.real, -z.imag], [z.imag, z.real]]);
-    # # random unitary matrix:
-    # U = np.diag([1, b]) @  R @ np.diag([a, c]);
-
-    U = qk_random_unitary(dims=2);
-
-    return [
-        QkUnitaryGate(data=U, label=f'${label}$'),
-        QkUnitaryGate(data=U.transpose().conjugate(), label=f'${label}^{{\\dagger}}$'),
-    ];
+    return 2 * np.pi * np.random.rand(n, 3);
