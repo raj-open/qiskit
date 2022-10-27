@@ -94,16 +94,19 @@ def random_unitary_gate(label: str = 'U') -> tuple[QkGate, QkGate]:
     so that for test purposes one can generate
     an arbtirary state from the 0-state.
     '''
-    x = np.exp(2j*np.pi*np.random.rand(4));
-    x = x / np.abs(x); # force magnitude = 1
-    a, b, c, z = x;
+    # NOTE: qiskit has a built-in method.
+    # # generate random parameters
+    # x = np.exp(2j*np.pi*np.random.rand(4));
+    # x = x / np.abs(x); # force magnitude = 1
+    # a, b, c, z = x;
+    # # random rotation matrix:
+    # R = np.asarray([[z.real, -z.imag], [z.imag, z.real]]);
+    # # random unitary matrix:
+    # U = np.diag([1, b]) @  R @ np.diag([a, c]);
 
-    # random rotation matrix:
-    R = np.asarray([[z.real, -z.imag], [z.imag, z.real]]);
-    # random unitary matrix:
-    U = np.diag([1, b]) @  R @ np.diag([a, c]);
+    U = qk_random_unitary(dims=2);
 
     return [
         QkUnitaryGate(data=U, label=label),
-        QkUnitaryGate(data=U.T.conjugate(), label=f'{label}†'),
+        QkUnitaryGate(data=U.transpose().conjugate(), label=f'{label}†'),
     ];
