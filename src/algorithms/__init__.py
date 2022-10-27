@@ -20,5 +20,5 @@ __all__ = [
     'generate_satisfaction_problem',
     'teleportation_protocol',
     'teleportation_protocol_test',
-    'random_unitary_gate',
+    'random_unitary_parameters',
 ];

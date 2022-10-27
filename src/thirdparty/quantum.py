@@ -11,6 +11,7 @@ from qiskit import Aer as QkBackendAer;
 from qiskit import ClassicalRegister;
 from qiskit import IBMQ;
 from qiskit import QuantumCircuit;
+from qiskit.circuit import Parameter as QkParameter;
 from qiskit.circuit.gate import Gate as QkGate;
 from qiskit import QuantumRegister;
 from qiskit import assemble as qk_assemble;
@@ -65,6 +66,44 @@ class DRAW_MODE(Enum):
     # raw uncompiled latex output.
     LATEX_SOURCE = 'latex_source';
 
+def qk_unitary_gate_pair(
+    theta1: float | QkParameter,
+    theta2: float | QkParameter,
+    theta3: float | QkParameter,
+    label: str = 'U'
+) -> tuple[QkGate, QkGate]:
+    '''
+    @inputs
+    - `theta1` - <float|Parameter> random angle
+    - `theta2` - <float|Parameter> random angle
+    - `theta3` - <float|Parameter> random angle
+    - `label` - <string> name of operator
+
+    @returns
+    a pair of gates for U and its inverse.
+
+    NOTE: upto to a scalar multiple (phase shift)
+    unitary operators are parameterised as follows:
+
+    U = (1 0       ) Rotation(θ₂) (1 0       )
+        (0 exp(ιθ₁))              (0 exp(ιθ₃))
+    '''
+    circuit = QuantumCircuit(1);
+    circuit.rz(theta3, 0);
+    circuit.ry(theta2, 0);
+    circuit.rz(theta1, 0);
+    # u = circuit.to_gate();
+    u = circuit;
+    u.name = f'${label}$';
+    circuit = QuantumCircuit(1);
+    circuit.rz(-theta1, 0);
+    circuit.ry(-theta2, 0);
+    circuit.rz(-theta3, 0);
+    # u_inv = circuit.to_gate();
+    u_inv = circuit;
+    u_inv.name = f'${label}^{{\\dagger}}$';
+    return (u, u_inv);
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,6 +120,7 @@ __all__ = [
     'qk',
     'qk_assemble',
     'qk_execute',
+    'qk_unitary_gate_pair',
     'qk_random_unitary',
     'qk_transpile',
     'QkAccountProvider',
@@ -89,6 +129,7 @@ __all__ = [
     'QkGate',
     'QkJupyter',
     'QkOperator',
+    'QkParameter',
     'QkProblems',
     'QkResult',
     'QkStatevector',
