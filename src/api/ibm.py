@@ -20,36 +20,10 @@ from src.core.env import *;
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'BACKEND_SIMULATOR',
-    'BACKEND',
     'connect_to_ibm_account',
     'CreateBackend',
     'get_past_job',
 ];
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# CONSTANTS
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class BACKEND_SIMULATOR(Enum):
-    AER = 'aer_simulator';
-    QASM = 'qasm_simulator';
-    UNITARY = 'unitary_simulator';
-    # simulator_statevector
-    # simulator_mps
-    # simulator_extended_stabilizer
-    # simulator_stabilizer
-
-class BACKEND(Enum):
-    LEAST_BUSY = -1;
-    BELEM = 'ibmq_belem'
-    HANOI = 'ibmq_hanoi';
-    LIMA = 'ibmq_lima';
-    MANILA = 'ibmq_manila';
-    MELBOURNE = 'ibmq_melbourne';
-    NAIROBI = 'ibm_nairobi';
-    OSLO = 'ibm_oslo';
-    QUITO = 'ibmq_quito';
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # METHODS: connection

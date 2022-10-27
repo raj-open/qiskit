@@ -5,6 +5,7 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+from enum import Enum;
 import qiskit as qk;
 from qiskit import Aer as QkBackendAer;
 from qiskit import ClassicalRegister;
@@ -30,13 +31,49 @@ from qiskit.result.result import Result as QkResult;
 from qiskit.tools import jupyter as QkJupyter;
 from qiskit_textbook import problems as QkProblems;
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MODIFICATIONS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class BACKEND(Enum):
+    LEAST_BUSY = -1;
+    BELEM = 'ibmq_belem'
+    HANOI = 'ibmq_hanoi';
+    LIMA = 'ibmq_lima';
+    MANILA = 'ibmq_manila';
+    MELBOURNE = 'ibmq_melbourne';
+    NAIROBI = 'ibm_nairobi';
+    OSLO = 'ibm_oslo';
+    QUITO = 'ibmq_quito';
+
+class BACKEND_SIMULATOR(Enum):
+    AER = 'aer_simulator';
+    QASM = 'qasm_simulator';
+    UNITARY = 'unitary_simulator';
+    # simulator_statevector
+    # simulator_mps
+    # simulator_extended_stabilizer
+    # simulator_stabilizer
+
+class DRAW_MODE(Enum):
+    # images with color rendered purely in Python using matplotlib.
+    COLOUR = 'mpl';
+    # ASCII art TextDrawing that can be printed in the console.
+    TEXT = 'text';
+    # high-quality images compiled via latex.
+    LATEX = 'latex';
+    # raw uncompiled latex output.
+    LATEX_SOURCE = 'latex_source';
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
+    'BACKEND',
+    'BACKEND_SIMULATOR',
     'ClassicalRegister',
+    'DRAW_MODE',
     'ibmq',
     'IBMQ',
     'IBMQJob',
