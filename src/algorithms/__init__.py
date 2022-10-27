@@ -7,6 +7,7 @@
 
 from src.algorithms.deutsch_jozsa import *;
 from src.algorithms.grover import *;
+from src.algorithms.teleport import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
@@ -17,4 +18,7 @@ __all__ = [
     'grover_algorithm',
     'grover_algorithm_naive',
     'generate_satisfaction_problem',
+    'teleportation_protocol',
+    'teleportation_protocol_test',
+    'random_unitary_gate',
 ];
