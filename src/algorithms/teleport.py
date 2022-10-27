@@ -107,6 +107,6 @@ def random_unitary_gate(label: str = 'U') -> tuple[QkGate, QkGate]:
     U = qk_random_unitary(dims=2);
 
     return [
-        QkUnitaryGate(data=U, label=label),
-        QkUnitaryGate(data=U.transpose().conjugate(), label=f'{label}†'),
+        QkUnitaryGate(data=U, label=f'${label}$'),
+        QkUnitaryGate(data=U.transpose().conjugate(), label=f'${label}^{{\\dagger}}$'),
     ];
