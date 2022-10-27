@@ -77,16 +77,17 @@ def connect_to_ibm_account(force_reload: bool = False) -> QkAccountProvider:
 class CreateBackend(QkBackend):
     def __init__(
         self,
-        provider: QkAccountProvider,
         nr_qubits: int  = 1,
+        provider: Optional[QkAccountProvider] = None,
         kind: BACKEND | BACKEND_SIMULATOR = BACKEND.LEAST_BUSY,
     ):
+        assert provider is not None or isinstance(kind, BACKEND_SIMULATOR), 'If provider is not set, must use the simulator!';
         self._kind = kind;
         self._nr_qubits = nr_qubits;
         self._provider = provider;
         return;
 
-    def __enter__(self):
+    def __enter__(self) -> QkBackend:
         kind = self._kind;
         if isinstance(self._kind, BACKEND_SIMULATOR):
             return QkBackendAer.get_backend(kind.value);

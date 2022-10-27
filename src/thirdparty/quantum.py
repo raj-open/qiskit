@@ -12,10 +12,11 @@ from qiskit import IBMQ;
 from qiskit import QuantumCircuit;
 from qiskit.circuit.gate import Gate as QkGate;
 from qiskit import QuantumRegister;
-from qiskit import assemble as QkAssemble;
-from qiskit import execute as QkExecute;
-from qiskit import transpile as QkTranspile;
+from qiskit import assemble as qk_assemble;
+from qiskit import execute as qk_execute;
+from qiskit import transpile as qk_transpile;
 from qiskit import visualization as QkVisualisation;
+from qiskit.extensions import UnitaryGate as QkUnitaryGate;
 from qiskit.providers import ibmq;
 from qiskit.providers import Backend as QkBackend;
 from qiskit.providers.ibmq.job.ibmqjob import IBMQJob;
@@ -41,17 +42,18 @@ __all__ = [
     'IBMQJob',
     'IBMQSimulator',
     'QkAccountProvider',
-    'QkAssemble',
+    'qk_assemble',
     'QkBackend',
     'QkBackendAer',
-    'QkExecute',
+    'qk_execute',
     'QkGate',
     'QkJupyter',
     'QkOperator',
     'QkProblems',
     'QkResult',
     'QkStatevector',
-    'QkTranspile',
+    'qk_transpile',
+    'QkUnitaryGate',
     'QkVisualisation',
     'QuantumCircuit',
     'QuantumRegister',
