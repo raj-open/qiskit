@@ -25,6 +25,7 @@ from qiskit.providers.ibmq.accountprovider import AccountProvider as QkAccountPr
 # from qiskit.providers.ibmq import least_busy;
 from qiskit.quantum_info import Statevector as QkStatevector;
 from qiskit.quantum_info import Operator as QkOperator;
+from qiskit.quantum_info import random_unitary as qk_random_unitary;
 from qiskit.result.result import Result as QkResult;
 from qiskit.tools import jupyter as QkJupyter;
 from qiskit_textbook import problems as QkProblems;
@@ -35,24 +36,25 @@ from qiskit_textbook import problems as QkProblems;
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'qk',
     'ClassicalRegister',
     'ibmq',
     'IBMQ',
     'IBMQJob',
     'IBMQSimulator',
-    'QkAccountProvider',
+    'qk',
     'qk_assemble',
+    'qk_execute',
+    'qk_random_unitary',
+    'qk_transpile',
+    'QkAccountProvider',
     'QkBackend',
     'QkBackendAer',
-    'qk_execute',
     'QkGate',
     'QkJupyter',
     'QkOperator',
     'QkProblems',
     'QkResult',
     'QkStatevector',
-    'qk_transpile',
     'QkUnitaryGate',
     'QkVisualisation',
     'QuantumCircuit',
