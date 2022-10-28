@@ -33,6 +33,7 @@ __all__ = [
 # local usage only
 _provider: Optional[QkAccountProvider] = None;
 T = TypeVar('T');
+ARGS = ParamSpec('ARGS');
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # METHODS: connection
@@ -66,47 +67,47 @@ class CreateBackend(QkBackend):
 
     @inputs
     - `n`            - <integer> default=1; Number of qubits required (only relevant for cloud computations).
-    - `kind`         - enum<BACKEND | BACKEND_SIMULATOR>; choice of simulator/backend.
+    - `option`       - enum<BACKEND | BACKEND_SIMULATOR>; choice of simulator/backend.
     - `force_reload` - <boolean> default=false; Whether to force reload IBM account. Only relevant for cloud computations.
 
     NOTE: to be used with `with`-blocks.
     '''
 
     nr_qubits: int;
-    kind: BACKEND | BACKEND_SIMULATOR;
+    option: BACKEND | BACKEND_SIMULATOR;
     provider: Optional[QkAccountProvider];
 
     def __init__(
         self,
-        kind: BACKEND | BACKEND_SIMULATOR,
+        option: BACKEND | BACKEND_SIMULATOR,
         n: int  = 1,
         force_reload: bool = False
     ):
-        self.kind = kind;
+        self.option = option;
         self.nr_qubits = n;
         self.provider = None;
-        if isinstance(kind, BACKEND):
+        if isinstance(option, BACKEND):
             self.provider = get_ibm_account(force_reload=force_reload);
         return;
 
     def __enter__(self) -> tuple[BACKEND | BACKEND_SIMULATOR, Optional[QkBackend]]:
-        kind = self.kind;
-        if isinstance(self.kind, BACKEND_SIMULATOR):
-            be = QkBackendAer.get_backend(kind.value);
-        elif kind == BACKEND.LEAST_BUSY:
+        option = self.option;
+        if isinstance(option, BACKEND_SIMULATOR):
+            be = QkBackendAer.get_backend(option.value);
+        elif option == BACKEND.LEAST_BUSY:
             def filt(x: IBMQSimulator) -> bool:
                 return x.configuration().n_qubits >= self.nr_qubits \
                     and x.configuration().simulator == False \
                     and x.status().operational == True;
             be = ibmq.least_busy(backends=self.provider.backends(filters=filt));
-            kind = backend_from_name(name=str(be))
-            return kind, be;
+            option = backend_from_name(name=str(be))
+            return option, be;
         else:
             try:
-                be = self.provider.get_backend(kind.value);
+                be = self.provider.get_backend(option.value);
             except:
                 be = None;
-        return kind, be;
+        return option, be;
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         # NOTE: At the moment does nothing. This may change depending upon IBM's implementation.
@@ -114,23 +115,23 @@ class CreateBackend(QkBackend):
 
 # decorator
 def connect_to_backend(
-    kind: BACKEND | BACKEND_SIMULATOR,
+    option: BACKEND | BACKEND_SIMULATOR,
     n: int  = 1,
     force_reload: bool = False
-) -> Callable[[Callable[[BACKEND | BACKEND_SIMULATOR, QkBackend], T]], Callable[[], Optional[T]]]:
+) -> Callable[[Callable[Concatenate[BACKEND | BACKEND_SIMULATOR, QkBackend, ARGS], T]], Callable[ARGS, Optional[T]]]:
     '''
     Decorator to ease connection to IBM backend.
     '''
     def dec(
-        action: Callable[[BACKEND | BACKEND_SIMULATOR, QkBackend], T]
-    ) -> Callable[[], Optional[T]]:
-        be = CreateBackend(kind=kind, n=n, force_reload=force_reload);
+        action: Callable[Concatenate[BACKEND | BACKEND_SIMULATOR, QkBackend, ARGS], T]
+    ) -> Callable[ARGS, Optional[T]]:
+        be = CreateBackend(option=option, n=n, force_reload=force_reload);
         @wraps(action)
-        def wrapped_action() -> Optional[T]:
-            with be as (kind, backend):
+        def wrapped_action(**kwargs) -> Optional[T]:
+            with be as (option, backend):
                 if backend is None:
-                    return None;
-                return action(kind, backend);
+                    return;
+                return action(option, backend, **kwargs);
         return wrapped_action;
     return dec;
 

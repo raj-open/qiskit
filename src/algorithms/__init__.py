@@ -15,10 +15,11 @@ from src.algorithms.teleport import *;
 
 __all__ = [
     'deutsch_jozsa_algorithm',
+    'deutsch_jozsa_oracle',
+    'generate_satisfaction_problem',
     'grover_algorithm',
     'grover_algorithm_naive',
-    'generate_satisfaction_problem',
+    'random_unitary_parameters',
     'teleportation_protocol',
     'teleportation_protocol_test',
-    'random_unitary_parameters',
 ];
