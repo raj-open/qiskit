@@ -65,14 +65,14 @@ class RecoverJobWidget():
         def dec(action: Callable[[IBMQJob], None]) -> Callable[[], None]:
             @wraps(action)
             def wrapped_action() -> None:
-                def handler(job: IBMQJob) -> Optional[T]:
+                def handler(job: IBMQJob) -> None:
                     if ensure_job_done and (job is None or not job.done()):
                         print('...'); # clears output
                         return None;
                     self.show_loading();
-                    result = action(job);
+                    action(job);
                     self.hide_loading();
-                    return result;
+                    return;
                 out = widgets.interactive_output(
                     f = handler,
                     controls = dict(
