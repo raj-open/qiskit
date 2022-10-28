@@ -11,6 +11,7 @@ from src.thirdparty.code import *;
 from src.thirdparty.config import *;
 from src.thirdparty.quantum import *;
 from src.thirdparty.system import *;
+from src.thirdparty.render import *;
 from src.thirdparty.types import *;
 
 from src.core.env import *;
@@ -20,16 +21,24 @@ from src.core.env import *;
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'connect_to_ibm_account',
+    'get_ibm_account',
     'CreateBackend',
-    'get_past_job',
+    'connect_to_backend',
 ];
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# CONSTANTS / LOCAL VARIABLES
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# local usage only
+_provider: Optional[QkAccountProvider] = None;
+T = TypeVar('T');
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # METHODS: connection
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def connect_to_ibm_account(force_reload: bool = False) -> QkAccountProvider:
+def get_ibm_account(force_reload: bool = False) -> QkAccountProvider:
     '''
     Connects to IBM Lab session.
 
@@ -37,59 +46,93 @@ def connect_to_ibm_account(force_reload: bool = False) -> QkAccountProvider:
     - Requires .env file in root folder of project with TOKEN entry.
     - use `force_reload=True` to reload credentials. Otherwise only reloads credentials if current ones do not work.
     '''
+    global _provider;
     if force_reload:
-        return connect_to_ibm_account_force_reload();
-    try:
-        return IBMQ.load_account();
-    except:
-        return connect_to_ibm_account_force_reload();
+        _provider = connect_to_ibm_account_force_reload();
+    if _provider is None:
+        try:
+            _provider = IBMQ.load_account();
+        except:
+            _provider = connect_to_ibm_account_force_reload();
+    return _provider;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # METHODS: backend
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class CreateBackend(QkBackend):
+    '''
+    Creates connection to IBM `qiskit` backend.
+
+    @inputs
+    - `n`            - <integer> default=1; Number of qubits required (only relevant for cloud computations).
+    - `kind`         - enum<BACKEND | BACKEND_SIMULATOR>; choice of simulator/backend.
+    - `force_reload` - <boolean> default=false; Whether to force reload IBM account. Only relevant for cloud computations.
+
+    NOTE: to be used with `with`-blocks.
+    '''
+
+    nr_qubits: int;
+    kind: BACKEND | BACKEND_SIMULATOR;
+    provider: Optional[QkAccountProvider];
+
     def __init__(
         self,
-        nr_qubits: int  = 1,
-        provider: Optional[QkAccountProvider] = None,
-        kind: BACKEND | BACKEND_SIMULATOR = BACKEND.LEAST_BUSY,
+        kind: BACKEND | BACKEND_SIMULATOR,
+        n: int  = 1,
+        force_reload: bool = False
     ):
-        assert provider is not None or isinstance(kind, BACKEND_SIMULATOR), 'If provider is not set, must use the simulator!';
-        self._kind = kind;
-        self._nr_qubits = nr_qubits;
-        self._provider = provider;
+        self.kind = kind;
+        self.nr_qubits = n;
+        self.provider = None;
+        if isinstance(kind, BACKEND):
+            self.provider = get_ibm_account(force_reload=force_reload);
         return;
 
-    def __enter__(self) -> QkBackend:
-        kind = self._kind;
-        if isinstance(self._kind, BACKEND_SIMULATOR):
-            return QkBackendAer.get_backend(kind.value);
+    def __enter__(self) -> tuple[BACKEND | BACKEND_SIMULATOR, Optional[QkBackend]]:
+        kind = self.kind;
+        if isinstance(self.kind, BACKEND_SIMULATOR):
+            be = QkBackendAer.get_backend(kind.value);
         elif kind == BACKEND.LEAST_BUSY:
             def filt(x: IBMQSimulator) -> bool:
-                return x.configuration().n_qubits >= self._nr_qubits \
+                return x.configuration().n_qubits >= self.nr_qubits \
                     and x.configuration().simulator == False \
                     and x.status().operational == True;
-            return ibmq.least_busy(
-                backends = self._provider.backends(filters=filt),
-            );
-        return self._provider.get_backend(kind.value);
+            be = ibmq.least_busy(backends=self.provider.backends(filters=filt));
+            kind = backend_from_name(name=str(be))
+            return kind, be;
+        else:
+            try:
+                be = self.provider.get_backend(kind.value);
+            except:
+                be = None;
+        return kind, be;
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        # NOTE: At the moment does nothing. This may change depending upon IBM's implementation.
         return;
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# METHODS: jobs
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-def get_past_job(
-    job_index: str,
-    provider: QkAccountProvider,
-    kind: BACKEND,
-) -> IBMQJob:
-    with CreateBackend(provider=provider, kind=kind) as backend:
-        job = backend.retrieve_job(job_index);
-        return job;
+# decorator
+def connect_to_backend(
+    kind: BACKEND | BACKEND_SIMULATOR,
+    n: int  = 1,
+    force_reload: bool = False
+) -> Callable[[Callable[[BACKEND | BACKEND_SIMULATOR, QkBackend], T]], Callable[[], Optional[T]]]:
+    '''
+    Decorator to ease connection to IBM backend.
+    '''
+    def dec(
+        action: Callable[[BACKEND | BACKEND_SIMULATOR, QkBackend], T]
+    ) -> Callable[[], Optional[T]]:
+        be = CreateBackend(kind=kind, n=n, force_reload=force_reload);
+        @wraps(action)
+        def wrapped_action() -> Optional[T]:
+            with be as (kind, backend):
+                if backend is None:
+                    return None;
+                return action(kind, backend);
+        return wrapped_action;
+    return dec;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # AUXILIARY METHODS

@@ -22,6 +22,7 @@ from qiskit.extensions import UnitaryGate as QkUnitaryGate;
 from qiskit.providers import ibmq;
 from qiskit.providers import Backend as QkBackend;
 from qiskit.providers.ibmq.job.ibmqjob import IBMQJob;
+from qiskit.providers.ibmq.ibmqbackend import IBMQBackend;
 from qiskit.providers.ibmq.ibmqbackend import IBMQSimulator;
 from qiskit.providers.ibmq.accountprovider import AccountProvider as QkAccountProvider;
 # from qiskit.providers.ibmq import least_busy;
@@ -46,6 +47,13 @@ class BACKEND(Enum):
     NAIROBI = 'ibm_nairobi';
     OSLO = 'ibm_oslo';
     QUITO = 'ibmq_quito';
+
+def backend_from_name(name: str) -> BACKEND:
+    try:
+        e = next( e for e in BACKEND if e.value == name );
+    except:
+        e = BACKEND.LEAST_BUSY;
+    return e;
 
 class BACKEND_SIMULATOR(Enum):
     AER = 'aer_simulator';
@@ -109,12 +117,14 @@ def qk_unitary_gate_pair(
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
+    'backend_from_name',
     'BACKEND',
     'BACKEND_SIMULATOR',
     'ClassicalRegister',
     'DRAW_MODE',
     'ibmq',
     'IBMQ',
+    'IBMQBackend',
     'IBMQJob',
     'IBMQSimulator',
     'qk',
