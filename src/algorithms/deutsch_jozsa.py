@@ -14,6 +14,7 @@ from src.thirdparty.quantum import *;
 
 __all__ = [
     'deutsch_jozsa_algorithm',
+    'deutsch_jozsa_oracle',
 ];
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
