@@ -38,6 +38,9 @@ from qiskit_textbook import problems as QkProblems;
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class BACKEND(Enum):
+    '''
+    cf. <https://quantum-computing.ibm.com/lab/docs>
+    '''
     LEAST_BUSY = -1;
     BELEM = 'ibmq_belem'
     HANOI = 'ibmq_hanoi';
@@ -56,13 +59,23 @@ def backend_from_name(name: str) -> BACKEND:
     return e;
 
 class BACKEND_SIMULATOR(Enum):
+    '''
+    cf. <https://quantum-computing.ibm.com/lab/docs/iql/manage/simulator>
+    '''
+    # General, context-aware
     AER = 'aer_simulator';
     QASM = 'qasm_simulator';
+    IBM_QASM = 'ibmq_qasm_simulator';
     UNITARY = 'unitary_simulator';
-    # simulator_statevector
-    # simulator_mps
-    # simulator_extended_stabilizer
-    # simulator_stabilizer
+    # Special
+    # Stabiliser - Clifford
+    CLIFFORD = 'simulator_stabilizer';
+    # Stabiliser - Extended Clifford (e.g., Clifford+T)
+    CLIFFORD_EXTENDED = 'simulator_extended_stabilizer';
+    # Schrödinger wavefunction
+    STATE_VECTOR = 'simulator_statevector';
+    # Matrix Product State
+    STATE_MATRIXPRODUCT = 'simulator_mps';
 
 class DRAW_MODE(Enum):
     # images with color rendered purely in Python using matplotlib.
