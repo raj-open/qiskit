@@ -80,6 +80,9 @@ def action_prepare_circuit_and_job(
             backend = backend,
             shots = num_shots,
             optimization_level = 3,
+            # FIXME: currently these two arguments are ignored by the qiskit package:
+            # name = 'deutsch-jozsa-algorithm',
+            # tags = ['algorithm=deutsch-jozsa', f'shots={num_shots}', f'bits={n}'],
         );
         print(latest_info(backend=backend, job=job));
         latest_state.set_job(job, queue=isinstance(option, BACKEND));
