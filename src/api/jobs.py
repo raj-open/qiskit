@@ -73,11 +73,13 @@ class RecoverJobWidget():
         Callable[ARGS, None],
     ]:
         '''
-        decorator
+        Decorator to connect a method to be performed/updated when the widget changes.
         '''
         def dec(action: Callable[Concatenate[IBMQJob, ARGS], None]) -> Callable[ARGS, None]:
+            # modify action, so that it is triggered by events:
             @wraps(action)
             def wrapped_action(**kwargs) -> None:
+                # embed action into an event handle:
                 def handler(
                     backend_option: Optional[BACKEND | BACKEND_SIMULATOR],
                     job: Optional[IBMQJob],
@@ -92,6 +94,7 @@ class RecoverJobWidget():
                     action(job, **kwargs);
                     self.hide_loading();
                     return;
+                # connect event handle to react to changes to controls:
                 display(widgets.interactive_output(
                     f = handler,
                     controls = dict(
@@ -101,6 +104,7 @@ class RecoverJobWidget():
                     ),
                 ));
                 return;
+            # return modified action:
             return wrapped_action;
         return dec;
 

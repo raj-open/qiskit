@@ -25,6 +25,7 @@ __all__ = [
     'get_ibm_account',
     'CreateBackend',
     'connect_to_backend',
+    'display_backends',
 ];
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -165,3 +166,13 @@ def connect_to_ibm_account_force_reload() -> QkAccountProvider:
     );
     provider = IBMQ.load_account();
     return provider;
+
+def display_backends():
+    provider = get_ibm_account(force_reload=False);
+    backends = provider.backends();
+    names_simulator = [str(be) for be in backends if isinstance(be, IBMQSimulator)];
+    names_queue = [str(be) for be in backends if isinstance(be, IBMQBackend) and not isinstance(be, IBMQSimulator)];
+    print('\x1b[1mAVAILABLE BACKENDS (SIMULATOR):\x1b[0m\n- ' + '\n- '.join(names_simulator));
+    print('----');
+    print('\x1b[1mAVAILABLE BACKENDS (QUEUE):\x1b[0m\n- ' + '\n- '.join(names_queue));
+    return;

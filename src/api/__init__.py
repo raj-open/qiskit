@@ -17,6 +17,7 @@ from src.api.statistics import *;
 __all__ = [
     'connect_to_backend',
     'CreateBackend',
+    'display_backends',
     'get_counts',
     'get_ibm_account',
     'latest_info',
