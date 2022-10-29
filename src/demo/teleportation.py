@@ -5,9 +5,6 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from __future__ import annotations;
-
-from src.thirdparty.code import *;
 from src.thirdparty.misc import *;
 from src.thirdparty.quantum import *;
 from src.thirdparty.render import *;
@@ -41,8 +38,8 @@ def action_display_circuit():
 
 def action_prepare_circuit_and_job(
     option: BACKEND | BACKEND_SIMULATOR,
-    num_samples: int,
     num_shots: int,
+    num_samples: int,
 ):
     '''
     Displays the entire quantum teleoportation protocol for test purposes:
@@ -54,15 +51,15 @@ def action_prepare_circuit_and_job(
 
     @inputs
     - `backend` - an enum value to indicate which backend to use.
-    - `num_samples` - number of 'random' states to teleport
     - `num_shots` - number of shots of the job prepared for each random state.
+    - `num_samples` - number of 'random' states to teleport
     '''
     @connect_to_backend(option=option, n=3)
     def action(
         option: BACKEND | BACKEND_SIMULATOR,
         backend: QkBackend,
-        num_samples: int,
         num_shots: int,
+        num_samples: int,
     ):
         # create circuit:
         print('Quantumcircuit for testing teleportation protocol');
@@ -99,7 +96,7 @@ def action_prepare_circuit_and_job(
         latest_state.set_job(job, queue=isinstance(option, BACKEND));
         return;
 
-    action(num_samples=num_samples, num_shots=num_shots);
+    action(num_shots=num_shots, num_samples=num_samples);
     return;
 
 def action_display_statistics(queue: bool = False):
@@ -113,10 +110,8 @@ def action_display_statistics(queue: bool = False):
     def action(job: IBMQJob):
         result = job.result();
         _, [counts_alice, counts_bob] = get_counts(result, [0,1], [2]);
-        display(
-            QkVisualisation.plot_histogram(counts_alice, title='Measurements of Alice\'s QBits'),
-            QkVisualisation.plot_histogram(counts_bob, title='Measurements of Bob\'s QBits'),
-        );
+        display(QkVisualisation.plot_histogram(counts_alice, title='Measurements of Alice\'s QBits'));
+        display(QkVisualisation.plot_histogram(counts_bob, title='Measurements of Bob\'s QBits'));
 
     action();
     return;

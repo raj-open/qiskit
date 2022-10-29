@@ -5,9 +5,6 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from __future__ import annotations;
-
-from src.thirdparty.code import *;
 from src.thirdparty.misc import *;
 from src.thirdparty.maths import *;
 from src.thirdparty.quantum import *;
@@ -47,8 +44,8 @@ def action_display_circuit(n: int):
 
 def action_prepare_circuit_and_job(
     option: BACKEND | BACKEND_SIMULATOR,
-    n: int,
     num_shots: int,
+    n: int,
 ):
     '''
     Prepares the quntum circuit and jobs for the Deutsch-Josza algorithm.
@@ -62,8 +59,8 @@ def action_prepare_circuit_and_job(
     def action(
         option: BACKEND | BACKEND_SIMULATOR,
         backend: QkBackend,
-        n: int,
         num_shots: int,
+        n: int,
     ):
         # create circuit:
         print('Quantumcircuit for testing Deutsch-Josza algorithm');
@@ -88,7 +85,7 @@ def action_prepare_circuit_and_job(
         latest_state.set_job(job, queue=isinstance(option, BACKEND));
         return;
 
-    action(n=n, num_shots=num_shots);
+    action(num_shots=num_shots, n=n);
     return;
 
 def action_display_statistics(queue: bool = False):
