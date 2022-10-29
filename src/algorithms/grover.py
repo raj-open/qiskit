@@ -80,7 +80,7 @@ def generate_satisfaction_problem(n: int, size: int = 0) -> list[int]:
     '''
     if size <= 0:
         size = np.random.randint(0, 2**n);
-    indexes = range(2**n);
+    indexes = list(range(2**n));
     marked = sample(indexes, size=size, replace=False);
     return marked;
 

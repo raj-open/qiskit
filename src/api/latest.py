@@ -8,6 +8,7 @@
 from __future__ import annotations;
 
 from src.thirdparty.code import *;
+from src.thirdparty.misc import *;
 from src.thirdparty.quantum import *;
 from src.thirdparty.types import *;
 
@@ -17,49 +18,74 @@ from src.thirdparty.types import *;
 
 __all__ = [
     'Latest',
-    'LatestQueue',
-    'LatestSimulator',
+    'latest_info',
+    'latest_state',
 ];
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# CONSTANTS / LOCAL VARIABLES
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# local usage only
+T = TypeVar('T');
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # CLASSES
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 @dataclass
-class LatestSimulator():
-    backend: Optional[BACKEND_SIMULATOR] = field(init=None);
-    job: Optional[IBMQJob] = field(init=None);
+class LatestBasic(Generic[T]):
+    backend: Optional[T] = field(default=None);
+    job: Optional[IBMQJob] = field(default=None);
 
-@dataclass
-class LatestQueue():
-    backend: Optional[BACKEND] = field(init=None);
-    job: Optional[IBMQJob] = field(init=None);
+    def set_backend(self, option: Optional[T]):
+        self.backend = option;
+
+    def set_job(self, job: Optional[IBMQJob]):
+        self.job = job;
 
 @dataclass
 class Latest():
-    simulator: LatestSimulator = field(default_factory=LatestSimulator);
-    queue: LatestQueue = field(default_factory=LatestQueue);
+    simulator: LatestBasic[BACKEND_SIMULATOR] = field(default_factory=lambda: LatestBasic[BACKEND_SIMULATOR]());
+    queue: LatestBasic[BACKEND] = field(default_factory=lambda: LatestBasic[BACKEND]());
 
-    def get_backend(self, simulated: bool = True) -> Optional[BACKEND | BACKEND_SIMULATOR]:
-        if simulated:
-            return self.simulator.backend;
-        return self.queue.backend;
+    def get_backend(self, queue: bool) -> Optional[BACKEND | BACKEND_SIMULATOR]:
+        if queue:
+            return self.queue.backend;
+        return self.simulator.backend;
 
-    def get_job(self, simulated: bool = True) -> Optional[IBMQJob]:
-        if simulated:
-            return self.simulator.job;
-        return self.queue.job;
+    def get_job(self, queue: bool) -> Optional[IBMQJob]:
+        if queue:
+            return self.queue.job;
+        return self.simulator.job;
 
-    def set_backend(self, option: Optional[BACKEND | BACKEND_SIMULATOR], simulated: bool = True):
-        if simulated:
-            self.simulator.backend = option if isinstance(option, BACKEND_SIMULATOR) else None;
+    def set_backend(self, option: Optional[BACKEND | BACKEND_SIMULATOR], queue: bool):
+        if queue:
+            self.queue.set_backend(option if isinstance(option, BACKEND) else None);
         else:
-            self.queue.backend = option if isinstance(option, BACKEND) else None;
-        return;
+            self.simulator.set_backend(option if isinstance(option, BACKEND_SIMULATOR) else None);
 
-    def set_job(self, job: Optional[IBMQJob], simulated: bool = True):
-        if simulated:
-            self.simulator.job = job;
+    def set_job(self, job: Optional[IBMQJob], queue: bool):
+        if queue:
+            self.queue.set_job(job);
         else:
-            self.queue.job = job;
-        return;
+            self.simulator.set_job(job);
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# METHODS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def latest_info(backend: QkBackend, job: IBMQJob) -> str:
+    return dedent(
+        f'''
+        \x1b[1mNOTE:\x1b[0m
+        - backend used: \x1b[1m{backend}\x1b[0m
+        - job index: \x1b[1m{job.job_id()}\x1b[0m
+        '''
+    );
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# GLOBAL VARIABLE
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+latest_state = Latest();

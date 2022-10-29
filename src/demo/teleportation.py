@@ -14,7 +14,6 @@ from src.thirdparty.render import *;
 from src.thirdparty.types import *;
 
 from src.api import *;
-from src.widgets import *;
 from src.algorithms import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,13 +25,6 @@ __all__ = [
     'action_display_statistics',
     'action_prepare_circuit_and_job',
 ];
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# CONSTANTS / LOCAL VARIABLES
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# local usage only
-_latest = Latest();
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # METHODS - ACTIONS
@@ -72,26 +64,18 @@ def action_prepare_circuit_and_job(
         num_samples: int,
         num_shots: int,
     ):
-        simulated = isinstance(option, BACKEND_SIMULATOR);
-        _latest.set_backend(option, simulated=simulated);
-        print('Quantumcircuit for testing Teleportation protocol:');
+        # create circuit:
+        print('Quantumcircuit for testing teleportation protocol');
         circuit_scheme, params = teleportation_protocol_test();
+
+        # display circuit:
         display(circuit_scheme.draw(
             output        = DRAW_MODE.COLOUR.value,
             cregbundle    = False,
             initial_state = True,
         ));
 
-        print(dedent(f'''
-        \x1b[1mNOTE:\x1b[0m
-        - Random state \x1b[1m|ψ⟩ = U|0⟩\x1b[0m generated at start.
-        - To test that \x1b[1m|ψ⟩\x1b[0m was teleported,
-          Bob applies inverse of \x1b[1mU\x1b[0m and measures his state.
-          If \x1b[1mcbit 3 = |0⟩\x1b[0m, then teleportation successful.
-        - Expect cbits 1 + 2 to be uniformly randomly distributed.
-        '''));
-
-        # instantiate schema with random values:
+        # instantiate schema with random values and transpile:
         circuits = [
             circuit_scheme.bind_parameters({
                 param_i: value_i
@@ -99,13 +83,11 @@ def action_prepare_circuit_and_job(
             })
             for values in random_unitary_parameters(n=num_samples)
         ];
-
-        # transpile + assemble
         circuits = [ qk_transpile(circuit, backend) for circuit in circuits ];
         for circuit in circuits:
             circuit.name = circuit_scheme.name;
 
-        # run job and obtain results:
+        # create job:
         # %qiskit_job_watcher
         job = qk_execute(
             experiments = circuits,
@@ -113,13 +95,8 @@ def action_prepare_circuit_and_job(
             shots = num_shots,
             optimization_level = 3,
         );
-        _latest.set_job(job, simulated=simulated);
-
-        print(dedent(f'''
-        \x1b[1mNOTE:\x1b[0m
-        - backend used: \x1b[1m{backend}\x1b[0m
-        - job index: \x1b[1m{job.job_id()}\x1b[0m
-        '''));
+        print(latest_info(backend=backend, job=job));
+        latest_state.set_job(job, queue=isinstance(option, BACKEND));
         return;
 
     action(num_samples=num_samples, num_shots=num_shots);
@@ -132,13 +109,10 @@ def action_display_statistics(queue: bool = False):
     @inputs
     - `queue` - <boolean> `true` = display widget to choose job from IBM backend queue. `false` = use latest simulation.
     '''
-    option = _latest.get_backend(not queue);
-    job = _latest.get_job(not queue);
-    # extract statitics:
-    @recover_job(queue=queue, option=option, job=job, ensure_job_done=True)
+    @recover_job(queue=queue, ensure_job_done=True, use_latest=True)
     def action(job: IBMQJob):
         result = job.result();
-        counts, [counts_alice, counts_bob] = get_counts(result, [0,1], [2]);
+        _, [counts_alice, counts_bob] = get_counts(result, [0,1], [2]);
         display(
             QkVisualisation.plot_histogram(counts_alice, title='Measurements of Alice\'s QBits'),
             QkVisualisation.plot_histogram(counts_bob, title='Measurements of Bob\'s QBits'),
