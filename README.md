@@ -39,6 +39,7 @@ URL=https://auth.quantum-computing.ibm.com/api
 HUB=ibm-q
 GROUP=open
 PROJECT=main
+SEED=12345678
 ```
 
 ### Execution ###
