@@ -27,7 +27,7 @@ _create-file-if-not-exists fname:
     @touch "{{fname}}";
 
 _create-folder-if-not-exists path:
-    @if ! [ -d "{{path}}" ]; then mkdir "{{path}}"; fi
+    @if ! [ -d "{{path}}" ]; then mkdir -p "{{path}}"; fi
 
 _delete-if-file-exists fname:
     @if [ -f "{{fname}}" ]; then rm "{{fname}}"; fi
@@ -35,13 +35,13 @@ _delete-if-file-exists fname:
 _delete-if-folder-exists path:
     @if [ -d "{{path}}" ]; then rm -rf "{{path}}"; fi
 
-_clean-all-files pattern:
-    @find . -type f -name "{{pattern}}" -exec basename {} \; 2> /dev/null
-    @- find . -type f -name "{{pattern}}" -exec rm {} \; 2> /dev/null
+_clean-all-files path pattern:
+    @find {{path}} -type f -name "{{pattern}}" -exec basename {} \; 2> /dev/null
+    @- find {{path}} -type f -name "{{pattern}}" -exec rm {} \; 2> /dev/null
 
-_clean-all-folders pattern:
-    @find . -type d -name "{{pattern}}" -exec basename {} \; 2> /dev/null
-    @- find . -type d -name "{{pattern}}" -exec rm -rf {} \; 2> /dev/null
+_clean-all-folders path pattern:
+    @find {{path}} -type d -name "{{pattern}}" -exec basename {} \; 2> /dev/null
+    @- find {{path}} -type d -name "{{pattern}}" -exec rm -rf {} \; 2> /dev/null
 
 _copy-file-if-not-exists path_from path_to:
     @- cp -n "{{path_from}}" "{{path_to}}"
@@ -68,6 +68,7 @@ _generate-models path name:
         --encoding "UTF-8" \
         --disable-timestamp \
         --use-schema-description \
+        --set-default-enum-member \
         --allow-population-by-field-name \
         --snake-case-field \
         --strict-nullable \
@@ -92,7 +93,7 @@ _generate-models-documentation path_schema path_docs name:
 build:
     @just build-misc
     @just build-requirements
-    @just _check-system-requirements
+    @just check-system-requirements
     @just build-models
 build-misc:
     @# create database if not exists:
@@ -107,15 +108,28 @@ build-models:
     @echo "Generate data models from schemata."
     @just _delete-if-folder-exists "models/generated"
     @just _create-folder-if-not-exists "models/generated"
-    @- #just _generate-models "models" "config"
+    @- just _build-models-recursively
+_build-models-recursively:
+    #!/usr/bin/env bash
+    while read path; do
+        if [[ "$path" == "" ]]; then continue; fi
+        name="$( echo """$path""" | sed -E """s/^models\/(.*)-schema\.yaml$/\1/g""")";
+        just _generate-models "models" "$name";
+    done <<< "$( ls -f models/*-schema.yaml )";
 build-documentation:
     @echo "Generate documentations data models from schemata."
-    @just _delete-if-folder-exists "docs"
-    @just _create-folder-if-not-exists "docs"
-    @- #just _generate-models-documentation "models" "docs" "config"
-    @- just _clean-all-files .openapi-generator*
-    @- just _clean-all-folders .openapi-generator*
-
+    @just _delete-if-folder-exists "documentation"
+    @just _create-folder-if-not-exists "documentation"
+    @- just _build-documentation-recursively
+    @- just _clean-all-files "documentation" ".openapi-generator*"
+    @- just _clean-all-folders "documentation" ".openapi-generator*"
+_build-documentation-recursively:
+    #!/usr/bin/env bash
+    while read path; do
+        if [[ "$path" == "" ]]; then continue; fi
+        name="$( echo """$path""" | sed -E """s/^models\/(.*)-schema\.yaml$/\1/g""")";
+        just _generate-models-documentation "models" "documentation" "$name";
+    done <<< "$( ls -f models/*-schema.yaml )";
 dist:
     @just build
     @just build-documentation
@@ -197,12 +211,12 @@ pre-commit:
     @- {{PYTHON}} -m jupytext --update-metadata '{"vscode":null}' **/*.ipynb 2> /dev/null
 clean-basic:
     @echo "All system artefacts will be force removed."
-    @- just _clean-all-files ".DS_Store" 2> /dev/null
+    @- just _clean-all-files "." ".DS_Store" 2> /dev/null
     @echo "All build artefacts will be force removed."
-    @- just _clean-all-folders "__pycache__" 2> /dev/null
+    @- just _clean-all-folders "." "__pycache__" 2> /dev/null
     @- just _delete-if-folder-exists "models/generated" 2> /dev/null
     @echo "All test artefacts will be force removed."
-    @- just _clean-all-folders ".pytest_cache" 2> /dev/null
+    @- just _clean-all-folders "." ".pytest_cache" 2> /dev/null
     @- just _delete-if-file-exists ".coverage" 2> /dev/null
     @- just _delete-if-folder-exists "logs" 2> /dev/null
 
@@ -251,10 +265,10 @@ kill-api-process:
 # TARGETS: requirements
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-_check-system:
+check-system:
     @echo "Operating System detected: {{os_family()}}."
     @echo "Python command used: {{PYTHON}}."
 
-_check-system-requirements:
+check-system-requirements:
     @just _check-python-tool "{{GEN_MODELS}}" "datamodel-code-generator"
     @just _check-python-tool "{{GEN_MODELS_DOCUMENTATION}}" "openapi-code-generator"
