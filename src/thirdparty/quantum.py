@@ -108,19 +108,21 @@ def qk_unitary_gate_pair(
 
     U = (1 0       ) Rotation(θ₂) (1 0       )
         (0 exp(ιθ₁))              (0 exp(ιθ₃))
+     = P(θ₁)RY(θ₂)P(θ₃)
+
+    NOTE: Using UGates does not work as expected.
+    It also reduced accuracy both in the simulated and non-simulated setting!
     '''
     circuit = QuantumCircuit(1);
-    circuit.rz(theta3, 0);
+    circuit.p(theta3, 0);
     circuit.ry(theta2, 0);
-    circuit.rz(theta1, 0);
-    # u = circuit.to_gate();
+    circuit.p(theta1, 0);
     u = circuit;
     u.name = f'${label}$';
     circuit = QuantumCircuit(1);
-    circuit.rz(-theta1, 0);
+    circuit.p(-theta1, 0);
     circuit.ry(-theta2, 0);
-    circuit.rz(-theta3, 0);
-    # u_inv = circuit.to_gate();
+    circuit.p(-theta3, 0);
     u_inv = circuit;
     u_inv.name = f'${label}^{{\\dagger}}$';
     return (u, u_inv);

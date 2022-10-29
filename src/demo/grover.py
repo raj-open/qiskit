@@ -83,6 +83,9 @@ def action_prepare_circuit_and_job(
             backend = backend,
             shots = num_shots,
             optimization_level = 3,
+            # FIXME: currently these two arguments are ignored by the qiskit package:
+            # name = 'grovers-algorithm',
+            # tags = ['algorithm=grover', f'shots={num_shots}', f'size={k}'],
         );
         print(latest_info(backend=backend, job=job));
         latest_state.set_job(job, queue=isinstance(option, BACKEND));

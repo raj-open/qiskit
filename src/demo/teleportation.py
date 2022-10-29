@@ -86,11 +86,14 @@ def action_prepare_circuit_and_job(
 
         # create job:
         # %qiskit_job_watcher
-        job = qk_execute(
+        job: IBMQJob = qk_execute(
             experiments = circuits,
             backend = backend,
             shots = num_shots,
             optimization_level = 3,
+            # FIXME: currently these two arguments are ignored by the qiskit package:
+            # name = 'teleportation-protocoll-with-random-states',
+            # tags = ['algorithm=teleportation', 'state=random', f'shots={num_shots}', f'samples={num_samples}'],
         );
         print(latest_info(backend=backend, job=job));
         latest_state.set_job(job, queue=isinstance(option, BACKEND));

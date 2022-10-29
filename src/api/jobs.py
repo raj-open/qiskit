@@ -8,6 +8,7 @@
 from __future__ import annotations;
 
 from src.thirdparty.run import time_sleep;
+from src.thirdparty.misc import *;
 from src.thirdparty.code import *;
 from src.thirdparty.quantum import *;
 from src.thirdparty.render import *;
@@ -158,7 +159,7 @@ class RecoverJobWidget():
         );
 
         self.text_status = widgets.HTML(
-            value = f'Job status: —'
+            value = self.text_status_value(),
         );
 
         self.text_pending = widgets.HTML(
@@ -227,9 +228,20 @@ class RecoverJobWidget():
             job: Optional[IBMQJob] = change['new'];
         except:
             job = self.dropdown_jobs.value;
-        status = get_job_status(job);
-        self.text_status.value = f'Job status: <b>{status.capitalize()}</b>';
+        self.text_status.value = self.text_status_value(job);
         return;
+
+    def text_status_value(self, job: Optional[IBMQJob] = None) -> str:
+        label = get_job_name(job);
+        tags = get_job_tags(job);
+        status = get_job_status(job);
+        return f'''
+        <ul>
+            <li>Job label: <b>{label.capitalize()}</b></li>
+            <li>tags: <i><tt>{tags}</i></tt></li>
+            <li>status: <b><tt>{status.capitalize()}</tt></b></li>
+        </ul>
+        ''';
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # DECORATOR
@@ -278,11 +290,31 @@ def recover_job(
 # AUXILIARY METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+def get_job_name(job: Optional[IBMQJob]) -> str:
+    try:
+        label = job.name() or '';
+        if label != '':
+            # label = re.sub(pattern=r'-', repl=r' ', string=label);
+            return label;
+    except:
+        pass;
+    return '—';
+
+def get_job_tags(job: Optional[IBMQJob]) -> str:
+    try:
+        tags = job.tags();
+        if len(tags) > 0:
+            return '#' + ', #'.join(tags);
+    except:
+        pass;
+    return '—';
+
 def get_job_status(job: Optional[IBMQJob]) -> str:
     try:
-        return job.status().value;
+        return str(job.status().value);
     except:
-        return '—';
+        pass;
+    return '—';
 
 def get_list_of_jobs(option: Optional[BACKEND]) -> list[IBMQJob]:
     if option is None:
