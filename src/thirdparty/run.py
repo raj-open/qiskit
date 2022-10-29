@@ -15,6 +15,7 @@ from asyncio import new_event_loop as asyncio_new_event_loop;
 from asyncio import run as asyncio_run;
 from asyncio import set_event_loop as asyncio_set_event_loop;
 from asyncio import sleep as asyncio_sleep;
+from time import sleep as time_sleep;
 from codetiming import Timer;
 from multiprocessing import Pool;
 
@@ -23,8 +24,8 @@ from multiprocessing import Pool;
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'asyncio_gather',
     'asyncio_ensure_future',
+    'asyncio_gather',
     'asyncio_get_event_loop',
     'asyncio_new_event_loop',
     'asyncio_run',
@@ -32,6 +33,7 @@ __all__ = [
     'asyncio_sleep',
     'AbstractEventLoop',
     'Future',
-    'Timer',
     'Pool',
+    'time_sleep',
+    'Timer',
 ];

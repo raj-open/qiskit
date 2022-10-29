@@ -33,14 +33,13 @@ __all__ = [
 
 def action_display_circuit(n: int):
     '''
-    Displays the quantum circuit for the Deutsch-Josza algorithm.
+    Displays the quantum circuit for the Grover algorithm.
 
     @inputs
-    - `n` - <integer> size of input space for function (should be even).
+    - `n` - <integer> size of input set for search problem.
     '''
-    print('Quantumcircuit for Deutsch-Josza Algorithm:');
+    print('Quantumcircuit for Grover Algorithm:');
     oraclenr = np.random.randint(0, 2);
-    # gate = deutsch_jozsa_oracle(n=n, oraclenr=oraclenr);
     circuit = deutsch_jozsa_algorithm(n=n, oraclenr=oraclenr, verbose=True);
     display(circuit.draw(output=DRAW_MODE.COLOUR.value, cregbundle=False, initial_state=True));
     return;
@@ -48,26 +47,30 @@ def action_display_circuit(n: int):
 def action_prepare_circuit_and_job(
     option: BACKEND | BACKEND_SIMULATOR,
     n: int,
+    k: int,
     num_shots: int,
 ):
     '''
-    Prepares the quntum circuit and jobs for the Deutsch-Josza algorithm.
+    Prepares the quntum circuit and jobs for the Grover algorithm.
 
     @inputs
     - `backend` - an enum value to indicate which backend to use.
-    - `n` - <integer> size of input space for function (should be even).
+    - `n` - <integer> size of list in search problem.
+    - `k` - <integer> number of indexes that can be searched for (must be positive).
     - `num_shots` - number of shots of the job prepared.
     '''
-    @connect_to_backend(option=option, n=n+1)
+    @connect_to_backend(option=option, n=n)
     def action(
         option: BACKEND | BACKEND_SIMULATOR,
         backend: QkBackend,
         n: int,
+        k: int,
         num_shots: int,
     ):
         # create circuit:
-        print('Quantumcircuit for testing Deutsch-Josza algorithm');
-        circuit = deutsch_jozsa_algorithm(n=n, verbose=True);
+        print('Quantumcircuit for testing Grover algorithm');
+        marked = generate_satisfaction_problem(n=n, size=k);
+        circuit = grover_algorithm_naive(n=n, marked=marked, verbose=True);
 
         # display circuit:
         display(circuit.draw(
@@ -76,7 +79,7 @@ def action_prepare_circuit_and_job(
             initial_state = True,
         ));
 
-        # create job:
+        # run job and obtain results:
         # %qiskit_job_watcher
         job = qk_execute(
             experiments = circuit,
@@ -88,12 +91,12 @@ def action_prepare_circuit_and_job(
         latest_state.set_job(job, queue=isinstance(option, BACKEND));
         return;
 
-    action(n=n, num_shots=num_shots);
+    action(n=n, k=k, num_shots=num_shots);
     return;
 
 def action_display_statistics(queue: bool = False):
     '''
-    Displays statistics of the job results of running the Deutsch-Josza protocol.
+    Displays statistics of the job results of running the Grover algorithm.
 
     @inputs
     - `queue` - <boolean> `true` = display widget to choose job from IBM backend queue. `false` = use latest simulation.

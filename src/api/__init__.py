@@ -6,6 +6,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 from src.api.ibm import *;
+from src.api.jobs import *;
 from src.api.latest import *;
 from src.api.statistics import *;
 
@@ -18,7 +19,9 @@ __all__ = [
     'CreateBackend',
     'get_counts',
     'get_ibm_account',
+    'latest_info',
+    'latest_state',
     'Latest',
-    'LatestQueue',
-    'LatestSimulator',
+    'recover_job',
+    'RecoverJobWidget',
 ];

@@ -27,7 +27,7 @@ __all__ = [
 # METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def get_counts(result: QkResult, *bits: list[int]) -> tuple[dict[str, int], list[dict[str, int]]]:
+def get_counts(result: QkResult, *bits: list[int], pad: bool = False) -> tuple[dict[str, int], list[dict[str, int]]]:
     '''
     Returns statistics of job results.
     '''
@@ -43,7 +43,12 @@ def get_counts(result: QkResult, *bits: list[int]) -> tuple[dict[str, int], list
     else:
         counts = counts_raw;
     # NOTE: qiskit orders the measured bits from buttom to top, so reverse this.
-    counts = { key[::-1]: value for key, value in counts.items() };
+    if pad:
+        n = get_key_length(counts);
+        keys = binary_sequences(n);
+        counts = { key: counts.get(key[::-1], 0) for key in keys };
+    else:
+        counts = { key[::-1]: value for key, value in counts.items() };
     statistic = [
         {
             key: sum([
@@ -60,6 +65,11 @@ def get_counts(result: QkResult, *bits: list[int]) -> tuple[dict[str, int], list
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # AUXILIARY METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def get_key_length(X: dict[str, Any]):
+    for key in X.keys():
+        return len(key);
+    return 0;
 
 def match_subkey(key_long: str, key: str, C: list[int]) -> bool:
     return all(

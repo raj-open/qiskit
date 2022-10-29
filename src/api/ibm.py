@@ -15,6 +15,7 @@ from src.thirdparty.render import *;
 from src.thirdparty.types import *;
 
 from src.core.env import *;
+from src.api.latest import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
@@ -94,6 +95,7 @@ class CreateBackend(QkBackend):
         option = self.option;
         if isinstance(option, BACKEND_SIMULATOR):
             be = QkBackendAer.get_backend(option.value);
+            latest_state.set_backend(option=option, queue=False);
         elif option == BACKEND.LEAST_BUSY:
             def filt(x: IBMQSimulator) -> bool:
                 return x.configuration().n_qubits >= self.nr_qubits \
@@ -101,12 +103,14 @@ class CreateBackend(QkBackend):
                     and x.status().operational == True;
             be = ibmq.least_busy(backends=self.provider.backends(filters=filt));
             option = backend_from_name(name=str(be))
-            return option, be;
+            latest_state.set_backend(option=option, queue=True);
         else:
             try:
                 be = self.provider.get_backend(option.value);
+                latest_state.set_backend(option=option, queue=True);
             except:
                 be = None;
+                latest_state.set_backend(option=None, queue=True);
         return option, be;
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
