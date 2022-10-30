@@ -50,6 +50,7 @@ class BACKEND(Enum):
     NAIROBI = 'ibm_nairobi';
     OSLO = 'ibm_oslo';
     QUITO = 'ibmq_quito';
+    VIGO = 'ibmq_vigo';
 
 def backend_from_name(name: str) -> BACKEND:
     try:
