@@ -59,6 +59,9 @@
 !/dist/VERSION
 
 !/examples
+!/examples/*_files/
+!/examples/*_files/*_*_*.png
+!/examples/*.md
 !/examples/*.html
 !/examples/*.md
 
