@@ -142,19 +142,6 @@ def recover_job(
         # create decorator for action via widget:
         dec = widget.observe(ensure_job_done);
     else:
-        error_message = dedent(
-            '''
-            Job either could not be recovered or is not done.
-            Details of recovered job:
-
-              - label:  \x1b[1m{label}\x1b[0m
-              - id:     \x1b[1m{id}\x1b[0m
-              - tag:    \x1b[1m{tags}\x1b[0m
-              - status: \x1b[1m{status}\x1b[0m
-
-            Try again later or use \x1b[1mas_widget=True\x1b[0m.
-            '''
-        );
         def dec(action: Callable[Concatenate[IBMQJob, ARGS], T]) -> Callable[ARGS, None]:
             # modify action to obtain job first and then perform action:
             @wraps(action)
@@ -162,12 +149,25 @@ def recover_job(
                 # retrieve job or else use latest job:
                 job = retrieve_job(queue=queue, job_id=job_id, backend_option=backend_option) or last_job;
                 # carry out action only if done, unless `ensure_job_done=False`:
-                if not ensure_job_done or is_job_done(queue=queue, job=job):
+                if not ensure_job_done or is_job_done(job=job, queue=queue):
                     action(job, **kwargs);
-                    return;
                 # otherwise optionally display feedback:
-                aspects = asdict(get_job_aspects(job));
-                print(error_message.format(**aspects));
+                else:
+                    aspects = get_job_aspects(job=job, backend_option=backend_option);
+                    print(dedent(
+                        f'''
+                        Job either could not be recovered or is not done.
+                        Details of recovered job:
+
+                        - backend: \x1b[1m{aspects.backend}\x1b[0m
+                        - label:   \x1b[1m{aspects.label}\x1b[0m
+                        - id:      \x1b[1m{aspects.id}\x1b[0m
+                        - tag:     \x1b[1m{aspects.tags}\x1b[0m
+                        - status:  \x1b[1m{aspects.status}\x1b[0m
+
+                        Try again later or use \x1b[1mas_widget=True\x1b[0m.
+                        '''
+                    ));
                 return;
             return wrapped_action;
 
@@ -226,12 +226,12 @@ class RecoverJobWidget():
                     refresh: bool,
                 ) -> None:
                     self.show_loading();
-                    time_sleep(0.5);
-                    if ensure_job_done and (job is None or not job.done()):
+                    if not ensure_job_done or is_job_done(job=job, queue=self.queue):
+                        action(job, **kwargs);
                         self.hide_loading();
+                    else:
+                        time_sleep(0.5);
                         print('...'); # 'clears' output
-                        return None;
-                    action(job, **kwargs);
                     self.hide_loading();
                     return;
                 # connect event handle to react to changes to controls:
@@ -380,7 +380,7 @@ class RecoverJobWidget():
         return;
 
     def text_status_value(self, job: Optional[IBMQJob] = None) -> str:
-        aspects = get_job_aspects(job);
+        aspects = get_job_aspects(job=job);
         return f'''
         <div style='padding:0pt 10pt;'>
             Job label: <b>{aspects.label.capitalize()}</b>
@@ -397,23 +397,31 @@ class RecoverJobWidget():
 # AUXILIARY METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def is_job_done(queue: bool, job: Optional[IBMQJob]) -> bool:
-    '''
-    NOTE: Job is deemed to be done if using the simulator, since no async methods are used.
-    '''
-    if job is None:
-        return False;
-    return job.done() if queue else True;
+def get_list_of_jobs(option: Optional[BACKEND | BACKEND_SIMULATOR]) -> list[IBMQJob]:
+    if not isinstance(option, BACKEND):
+        return [];
+    with CreateBackend(option=option) as (_, backend):
+        if backend is None:
+            return [];
+        try:
+            return backend.jobs(limit=LIMIT_NUM_JOBS, descending=True);
+        except:
+            return [];
 
 @dataclass
 class JobAspects():
+    backend: str = field(default='—');
     label: str = field(default='—');
     id: str = field(default='—');
     tags: str = field(default='—');
     status: str = field(default='—');
 
-def get_job_aspects(job: Optional[IBMQJob]) -> JobAspects:
+def get_job_aspects(
+    job: Optional[IBMQJob] = None,
+    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+) -> JobAspects:
     return JobAspects(
+        backend = get_backend_name(backend_option),
         label = get_job_name(job),
         id = get_job_id(job),
         tags = get_job_tags(job),
@@ -431,7 +439,6 @@ def get_job_name(job: Optional[IBMQJob]) -> str:
     try:
         label = job.name() or '';
         if label != '':
-            # label = re.sub(pattern=r'-', repl=r' ', string=label);
             return label;
     except:
         pass;
@@ -453,10 +460,15 @@ def get_job_status(job: Optional[IBMQJob]) -> str:
         pass;
     return '—';
 
-def get_list_of_jobs(option: Optional[BACKEND]) -> list[IBMQJob]:
-    if option is None:
-        return [];
-    with CreateBackend(option=option) as (_, backend):
-        if backend is None:
-            return [];
-        return backend.jobs(limit=LIMIT_NUM_JOBS, descending=True);
+def get_backend_name(backend_option: Optional[BACKEND | BACKEND_SIMULATOR]):
+    if backend_option is not None:
+        return str(backend_option.value);
+    return '—';
+
+def is_job_done(job: Optional[IBMQJob], queue: bool) -> bool:
+    '''
+    NOTE: Job is deemed to be done if using the simulator, since no async methods are used.
+    '''
+    if job is None:
+        return False;
+    return job.done() if queue else True;
