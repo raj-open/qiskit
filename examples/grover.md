@@ -1,10 +1,13 @@
-# Grover's Algorithm #
+# [Grover's Algorithm](../notebooks/grover.ipynb) #
 
 The methods for developing the circuits can be found in [src/algorithms/grover.py](../src/algorithms/grover.py).
 
+## Demonstration ##
+
+See [examples/grover.md](../examples/grover.md).
+
 
 ```python
-'''IMPORTS'''
 ...
 ```
 
@@ -15,7 +18,7 @@ The methods for developing the circuits can be found in [src/algorithms/grover.p
 ```
 
     Quantumcircuit for testing Grover algorithm
-    4 qubits, basis state ['1011'] marked, r=3 rounds
+    4 qubits, basis state ['1011', '0100'] marked, r=2 rounds
 
 
 
@@ -40,6 +43,10 @@ The methods for developing the circuits can be found in [src/algorithms/grover.p
 '''Example with IBM cloud backend (queue)'''
 ...
 ```
+
+    Quantumcircuit for testing Grover algorithm
+    4 qubits, basis state ['1001', '0000'] marked, r=2 rounds
+
 
 
 ```python

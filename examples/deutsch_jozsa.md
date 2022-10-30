@@ -1,6 +1,10 @@
-# Deutsch-Jozsa Algorithm #
+# [Deutsch-Jozsa Algorithm](../notebooks/deutsch_jozsa.ipynb) #
 
 The methods for developing the circuits can be found in [src/algorithms/deutsch_jozsa.py](../src/algorithms/deutsch_jozsa.py).
+
+## Demonstration ##
+
+See [examples/deutsch_jozsa.md](../examples/deutsch_jozsa.md)
 
 
 ```python

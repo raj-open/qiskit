@@ -1,6 +1,10 @@
-# Examples #
+# [Examples](../notebooks/examples.ipynb) #
 
 This notebook demonstrates usage of IBM qiskit, how to deal in this repository with circuits to be executed on the simulator, and those to be properly run on the backend ('queue').
+
+## Demonstration ##
+
+See [examples/examples.md](../examples/examples.md).
 
 
 ```python

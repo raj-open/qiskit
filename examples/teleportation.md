@@ -1,4 +1,4 @@
-# Teleportation #
+# [Teleportation](../notebooks/teleportation.ipynb) #
 
 The methods for developing the circuits can be found in [src/algorithms/teleport.py](../src/algorithms/teleport.py).
 
@@ -17,6 +17,10 @@ The methods for developing the circuits can be found in [src/algorithms/teleport
 In the simulator, these expectations are indeed met.
 In the backend, these expectations are only approximately attained.
 
+## Demonstration ##
+
+See [examples/teleportation.md](../examples/teleportation.md).
+
 
 ```python
 '''IMPORTS'''
@@ -25,7 +29,7 @@ In the backend, these expectations are only approximately attained.
 
 
 ```python
-basic_action_display_circuit();
+...
 ```
 
     Quantumcircuit for Teleportation:
