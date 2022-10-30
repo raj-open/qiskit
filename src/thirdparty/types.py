@@ -38,8 +38,8 @@ from typing import Generic;
 from typing import Optional;
 from typing import Type;
 from typing import TypeVar;
-from typing_extensions import Concatenate;
-from typing_extensions import ParamSpec;
+from typing import Concatenate;
+from typing import ParamSpec;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
