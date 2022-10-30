@@ -152,6 +152,15 @@ notebook name="examples":
     @# run notebook
     @{{PYTHON}} -m jupyter notebook notebooks/{{name}}.ipynb
 
+# exports notebook to format: html, markdown, pdf, latex.
+export name format="html" theme="light":
+    @{{PYTHON}} -m jupyter nbconvert \
+        --allow-chromium-download \
+        --HTMLExporter.theme={{theme}} \
+        --to {{format}} \
+        --output-dir examples \
+        notebooks/{{name}}.ipynb
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # TARGETS: tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -272,3 +281,5 @@ check-system:
 check-system-requirements:
     @just _check-python-tool "{{GEN_MODELS}}" "datamodel-code-generator"
     @just _check-python-tool "{{GEN_MODELS_DOCUMENTATION}}" "openapi-code-generator"
+    @just _check-python-tool "jupyter" "jupyter"
+    @just _check-python-tool "jupytext" "jupytext"
