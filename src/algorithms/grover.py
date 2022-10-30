@@ -107,7 +107,7 @@ def heuristic_optimal_rounds(
     '''
     u = np.sqrt(m/2**n);
     theta = np.arcsin(u);
-    r = round(np.pi/(4*theta) - 1/2);
+    r = round(pi/(4*theta) - 1/2);
     return r;
 
 def phase_oracle(

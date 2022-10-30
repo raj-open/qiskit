@@ -102,8 +102,8 @@ def action_display_statistics(
     )
     def action(job: IBMQJob):
         result = job.result();
-        counts, _ = get_counts(result, pad=True);
-        display(QkVisualisation.plot_histogram(counts, title='Measurements'));
+        N, counts, _ = get_counts(result, pad=True);
+        display(QkVisualisation.plot_distribution(counts, title=f'Measurements (batch size: {N})'));
 
     action();
     return;

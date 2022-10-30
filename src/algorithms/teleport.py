@@ -99,4 +99,4 @@ def random_unitary_parameters(n: int) -> list[QkOperator]:
     @returns
     a list of parameter values to generate random unitaries.
     '''
-    return 2 * np.pi * np.random.rand(n, 3);
+    return 2 * pi * np.random.rand(n, 3);

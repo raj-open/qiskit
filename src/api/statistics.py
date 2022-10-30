@@ -27,12 +27,20 @@ __all__ = [
 # METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def get_counts(result: QkResult, *bits: list[int], pad: bool = False) -> tuple[dict[str, int], list[dict[str, int]]]:
+def get_counts(
+    result: QkResult,
+    *bits: list[int],
+    pad: bool = False,
+) -> tuple[
+    int,
+    dict[str, int],
+    list[dict[str, int]],
+]:
     '''
     Returns statistics of job results.
     '''
     counts_raw = result.get_counts();
-    counts = {};
+    counts: dict[str, int] = {};
     if isinstance(counts_raw, list):
         if len(counts_raw) > 0:
             keys = counts_raw[0].keys();
@@ -49,6 +57,7 @@ def get_counts(result: QkResult, *bits: list[int], pad: bool = False) -> tuple[d
         counts = { key: counts.get(key[::-1], 0) for key in keys };
     else:
         counts = { key[::-1]: value for key, value in counts.items() };
+    tot = sum(counts.values());
     statistic = [
         {
             key: sum([
@@ -60,7 +69,7 @@ def get_counts(result: QkResult, *bits: list[int], pad: bool = False) -> tuple[d
         }
         for C in bits
     ];
-    return counts, statistic;
+    return tot, counts, statistic;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # AUXILIARY METHODS

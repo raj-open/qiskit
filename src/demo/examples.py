@@ -40,7 +40,7 @@ def action_prepare_circuit_and_job(
     - `backend` - an enum value to indicate which backend to use.
     - `num_shots` - number of shots of the job prepared.
     '''
-    @connect_to_backend(option=option, n=3)
+    @connect_to_backend(option=option, n=2)
     def action(
         option: BACKEND | BACKEND_SIMULATOR,
         backend: QkBackend,
@@ -50,20 +50,16 @@ def action_prepare_circuit_and_job(
         # create circuit:
         print(f'Example quantum circuit with {"backend" if queue else "simulator"}');
         u, u_inv = qk_unitary_gate_pair(theta1=theta1, theta2=theta2, theta3=theta3);
-        circuit = QuantumCircuit(3, 3);
-        circuit.append(u, [2]);
+        circuit = QuantumCircuit(2, 2);
+        circuit.append(u, [1]);
         circuit.barrier();
-        circuit.h(1);
-        circuit.x(1);
-        circuit.cx(1, 2);
+        circuit.cx(0, 1);
         circuit.x(1);
         circuit.h(1);
-        circuit.cx(2, 0);
         circuit.barrier();
-        circuit.append(u_inv, [2]);
+        circuit.append(u_inv, [1]);
         circuit.measure(0, 0);
         circuit.measure(1, 1);
-        circuit.measure(2, 2);
 
         # display circuit:
         display(circuit.draw(
@@ -113,10 +109,10 @@ def action_display_statistics(
     )
     def action(job: IBMQJob):
         result = job.result();
-        counts, [counts_01, counts_2] = get_counts(result, [0, 1], [2], pad=True);
-        display(QkVisualisation.plot_histogram(counts, title='Measurements'));
-        display(QkVisualisation.plot_histogram(counts_01, title='Measurements of QBits 0+1'));
-        display(QkVisualisation.plot_histogram(counts_2, title='Measurements of QBit 2'));
+        N, counts, [counts_0, counts_1] = get_counts(result, [0], [1], pad=True);
+        display(QkVisualisation.plot_distribution(counts, title=f'Measurements (batch size: {N})' ));
+        display(QkVisualisation.plot_distribution(counts_0, title=f'Measurements of QBit 0 (batch size: {N})'));
+        display(QkVisualisation.plot_distribution(counts_1, title=f'Measurements of QBit 1 (batch size: {N})'));
 
     action();
     return;
@@ -130,19 +126,15 @@ def basic_action_display_circuit(theta1: int, theta2: int, theta3: int):
     Displays the quantum circuit for the Examples notebook.
     '''
     print('Example quantum circuit');
-    circuit = QuantumCircuit(3, 3);
-    circuit.u(theta1, theta2, theta3, 2);
+    circuit = QuantumCircuit(2, 2);
+    circuit.u(theta1, theta2, theta3, 1);
     circuit.barrier();
-    circuit.h(1);
-    circuit.x(1);
-    circuit.cx(1, 2);
+    circuit.cx(0, 1);
     circuit.x(1);
     circuit.h(1);
-    circuit.cx(2, 0);
     circuit.barrier();
-    circuit.u(-theta1, -0, -theta3, 2);
+    circuit.u(-theta1, -theta2, -theta3, 1);
     circuit.measure(0, 0);
     circuit.measure(1, 1);
-    circuit.measure(2, 2);
     display(circuit.draw(output=DRAW_MODE.COLOUR.value, cregbundle=False, initial_state=True));
     return;

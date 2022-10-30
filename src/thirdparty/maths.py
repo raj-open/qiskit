@@ -8,6 +8,7 @@
 from fractions import Fraction;
 import math;
 import numpy as np;
+from numpy import pi;
 import random;
 from typing import TypeVar;
 
@@ -41,6 +42,7 @@ __all__ = [
     'Fraction',
     'math',
     'np',
+    'pi',
     'random',
     'sample',
 ];
