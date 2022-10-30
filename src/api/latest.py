@@ -79,8 +79,8 @@ def latest_info(backend: QkBackend, job: IBMQJob) -> str:
     return dedent(
         f'''
         \x1b[1mNOTE:\x1b[0m
-        - backend used: \x1b[1m{backend}\x1b[0m
-        - job index: \x1b[1m{job.job_id()}\x1b[0m
+        - backend: \x1b[1m{backend}\x1b[0m
+        - job id: \x1b[1m{job.job_id()}\x1b[0m
         '''
     );
 
