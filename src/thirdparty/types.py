@@ -37,6 +37,7 @@ from typing import Generator;
 from typing import Generic;
 from typing import Optional;
 from typing import Type;
+from typing import TypeAlias;
 from typing import TypeVar;
 from typing import Concatenate;
 from typing import ParamSpec;
@@ -78,6 +79,7 @@ __all__ = [
     'Generic',
     'Optional',
     'Type',
+    'TypeAlias',
     'TypeVar',
     'Concatenate',
     'ParamSpec',
