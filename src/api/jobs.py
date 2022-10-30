@@ -24,15 +24,154 @@ from src.api.latest import *;
 __all__ = [
     'RecoverJobWidget',
     'recover_job',
+    'retrieve_job'
 ];
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # CONSTANTS / LOCAL VARIABLES
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+LIMIT_NUM_JOBS: int = 10;
+
 # local usage only
 T = TypeVar('T');
 ARGS = ParamSpec('ARGS');
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# METHODS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def retrieve_job(
+    queue: bool,
+    job_id: Optional[str] = None,
+    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+) -> Optional[IBMQJob]:
+    '''
+    Retrieves an IBMQ job by id or else the latest job.
+    If not possible, returns None.
+
+    @inputs
+    - `queue`           - <boolean> `true` if job is from backend queue, `false` if from simulator.
+    - `job_id`          - <string | None> optional job id.
+    - `backend_option`  - <enum | None> only needed to retrieve jobs from backend queue.
+
+    NOTE: if `queue = False` is used (i.e. simulator), then will simply attempt to retrieve the last job,
+    since `qiskit` does not currently have a method to obtain jobs by id from the simulated backends.
+    '''
+    if not queue:
+        return latest_state.get_job(queue);
+    # Backend option must be from the BACKEND enum.
+    if backend_option is None or not isinstance(backend_option, BACKEND):
+        return None;
+    # Must provide a job id.
+    if job_id is None:
+        return None;
+    with CreateBackend(option=backend_option) as (_, backend):
+        if backend is None:
+            return None;
+        try:
+            return backend.retrieve_job(job_id);
+        except:
+            return None;
+
+def retrieve_last_job_and_backend(queue: bool) -> tuple[
+    Optional[IBMQJob],
+    Optional[BACKEND | BACKEND_SIMULATOR],
+]:
+    '''
+    Retrieves latest job + backend which were internally noted.
+    '''
+    job = latest_state.get_job(queue);
+    backend_option = latest_state.get_backend(queue)
+    return job, backend_option;
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# DECORATOR
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def recover_job(
+    queue: bool,
+    job_id: Optional[str] = None,
+    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+    use_latest: bool = True,
+    ensure_job_done: bool = True,
+    as_widget: bool = False,
+) -> Callable[
+    [Callable[Concatenate[IBMQJob, ARGS], T]],
+    Callable[ARGS, None],
+]:
+    '''
+    Creates a decorator to ease recovery and actions with IBMQ jobs.
+
+    @inputs
+    - `queue` - <boolean> whether the decorator is to be applied to an action on jobs from the queue.
+    - `job_id` - <string | None> if set, will attempt to obtain job by this id. (Only applicable if not used as widget.)
+    - `backend_option` - <enum | None> if set, will be used in combination with `job_id` to retrieve job.
+    - `use_latest` - <boolean> if `true` tries to (internally) obtain information about latest backend + job and uses these as default values.
+      - Option (semi-)ignored, if a job can be recovered from `backend_option` + `job_id`.
+      - Option completely ignored, if `as_widget=True` is used.
+    - `ensure_job_done` - <boolean> if `true` (default) hinders action from being performed, when job does not have DONE status.
+    - `as_widget` - <boolean> if `true` displays a widget interface so that use can select backend + job before carrying out action.
+        If `false` (default), attempts to retrieve job and carry out action if job exists and is done.
+
+    @returns
+    a decorator for actions, with example usage:
+    ```py
+    @recover_job(queue=True, use_latest=True, as_widget=True)
+    def do_stuff(job, key1, key2, ..., keyn):
+        ...;
+    ```
+    which allows the action to be performed without the user having to manually recover the job details.
+    An example usage (for the above):
+    ```py
+    do_stuff(key1, key2, ..., keyn); # no longer needs `job` argument!
+    ```
+    which creates a widget with dropdown menus for the selection of backend + job
+    (possibly preset with default values if `use_latest=True` set in decorator)
+    and which performs the action upon selection.
+    '''
+    # optionally recover latest backend option + job:
+    last_job, last_backend = retrieve_last_job_and_backend(queue) if use_latest else (None, None);
+    backend_option = backend_option or last_backend;
+    if as_widget:
+        # retrieve job or else use latest job:
+        job = retrieve_job(queue=queue, job_id=job_id, backend_option=backend_option) or last_job;
+        # create widget:
+        widget = RecoverJobWidget(option=backend_option, queue=queue, job=job);
+        widget.create();
+        # create decorator for action via widget:
+        dec = widget.observe(ensure_job_done);
+    else:
+        error_message = dedent(
+            '''
+            Job either could not be recovered or is not done.
+            Details of recovered job:
+
+              - label:  \x1b[1m{label}\x1b[0m
+              - id:     \x1b[1m{id}\x1b[0m
+              - tag:    \x1b[1m{tags}\x1b[0m
+              - status: \x1b[1m{status}\x1b[0m
+
+            Try again later or use \x1b[1mas_widget=True\x1b[0m.
+            '''
+        );
+        def dec(action: Callable[Concatenate[IBMQJob, ARGS], T]) -> Callable[ARGS, None]:
+            # modify action to obtain job first and then perform action:
+            @wraps(action)
+            def wrapped_action(**kwargs) -> None:
+                # retrieve job or else use latest job:
+                job = retrieve_job(queue=queue, job_id=job_id, backend_option=backend_option) or last_job;
+                # carry out action only if done, unless `ensure_job_done=False`:
+                if not ensure_job_done or is_job_done(queue=queue, job=job):
+                    action(job, **kwargs);
+                    return;
+                # otherwise optionally display feedback:
+                aspects = asdict(get_job_aspects(job));
+                print(error_message.format(**aspects));
+                return;
+            return wrapped_action;
+
+    return dec;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # WIDGET Recover Job
@@ -76,7 +215,7 @@ class RecoverJobWidget():
         '''
         Decorator to connect a method to be performed/updated when the widget changes.
         '''
-        def dec(action: Callable[Concatenate[IBMQJob, ARGS], None]) -> Callable[ARGS, None]:
+        def dec(action: Callable[Concatenate[IBMQJob, ARGS], T]) -> Callable[ARGS, None]:
             # modify action, so that it is triggered by events:
             @wraps(action)
             def wrapped_action(**kwargs) -> None:
@@ -170,16 +309,24 @@ class RecoverJobWidget():
         self.dropdown_backends.observe(self.handler_upd_backend, names='value');
         self.dropdown_jobs.observe(self.handler_upd_job, names='value');
         if self.queue:
-            self.handler_upd_backend();
-            self.handler_upd_job();
+            self.handler_update();
 
         ui = widgets.VBox([
-            self.dropdown_backends,
-            self.dropdown_jobs,
+            widgets.HBox([
+                widgets.VBox([
+                    self.dropdown_backends,
+                    self.dropdown_jobs,
+                ]),
+                self.text_status,
+            ], layout={
+                'display': 'flex',
+                'align_items': 'center',
+            }),
             self.btn_refresh,
-            self.text_status,
             self.text_pending,
-        ]);
+        ], layout = {
+            'padding': '10pt 10pt',
+        });
 
         self.show_loading();
         display(ui);
@@ -190,6 +337,7 @@ class RecoverJobWidget():
         '''
         Handler to force update status of job (if selected).
         '''
+        self.handler_upd_backend(None);
         self.handler_upd_job(None);
         return;
 
@@ -232,63 +380,52 @@ class RecoverJobWidget():
         return;
 
     def text_status_value(self, job: Optional[IBMQJob] = None) -> str:
-        label = get_job_name(job);
-        tags = get_job_tags(job);
-        status = get_job_status(job);
+        aspects = get_job_aspects(job);
         return f'''
-        <ul>
-            <li>Job label: <b>{label.capitalize()}</b></li>
-            <li>tags: <i><tt>{tags}</i></tt></li>
-            <li>status: <b><tt>{status.capitalize()}</tt></b></li>
-        </ul>
+        <div style='padding:0pt 10pt;'>
+            Job label: <b>{aspects.label.capitalize()}</b>
+            </br>
+            id: <tt>{aspects.id}</tt>
+            </br>
+            tags: <i><tt>{aspects.tags}</i></tt>
+            </br>
+            status: <b><tt>{aspects.status.capitalize()}</tt></b>
+        </div>
         ''';
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# DECORATOR
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-def recover_job(
-    queue: bool,
-    ensure_job_done: bool = True,
-    use_latest: bool = False,
-) -> Callable[[Callable[Concatenate[IBMQJob, ARGS], T]], Callable[ARGS, None]]:
-    '''
-    Creates a decorator to ease recovery and actions with IBMQ jobs.
-
-    @inputs
-    - `queue` - <boolean> whether the decorator is to be applied to an action on jobs from the queue.
-    - `ensure_job_done` - <boolean> if `true` (default) hinders action from being performed, when job does not have DONE status.
-    - `use_latest` - <boolean> if `true` tries to (internally) obtain information about latest backend+job and uses thesee as default values.
-
-    @returns
-    a decorator for actions, with example usage:
-    ```py
-    @recover_job(queue=True, use_latest=True)
-    def do_stuff(job, key1, key2, ..., keyn):
-        ...;
-    ```
-    which allows the action to be performed without the user having to manually recover the job details.
-    An example usage (for the above):
-    ```py
-    do_stuff(key1, key2, ..., keyn); # no longer needs `job` argument!
-    ```
-    which creates a widget with dropdown menus for the selection of backend + job
-    (possibly preset with default values if `use_latest=True` set in decorator)
-    and which performs the action upon selection.
-    '''
-    # optionally recover latest backend option + job:
-    last_option = latest_state.get_backend(queue) if use_latest else None;
-    last_job = latest_state.get_job(queue) if use_latest else None;
-    # create widget:
-    widget = RecoverJobWidget(option=last_option, queue=queue, job=last_job);
-    widget.create();
-    # create decorator for action via widget:
-    dec = widget.observe(ensure_job_done);
-    return dec;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # AUXILIARY METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def is_job_done(queue: bool, job: Optional[IBMQJob]) -> bool:
+    '''
+    NOTE: Job is deemed to be done if using the simulator, since no async methods are used.
+    '''
+    if job is None:
+        return False;
+    return job.done() if queue else True;
+
+@dataclass
+class JobAspects():
+    label: str = field(default='—');
+    id: str = field(default='—');
+    tags: str = field(default='—');
+    status: str = field(default='—');
+
+def get_job_aspects(job: Optional[IBMQJob]) -> JobAspects:
+    return JobAspects(
+        label = get_job_name(job),
+        id = get_job_id(job),
+        tags = get_job_tags(job),
+        status = get_job_status(job),
+    );
+
+def get_job_id(job: Optional[IBMQJob]) -> str:
+    try:
+        return job.job_id();
+    except:
+        pass;
+    return '—';
 
 def get_job_name(job: Optional[IBMQJob]) -> str:
     try:
@@ -320,7 +457,6 @@ def get_list_of_jobs(option: Optional[BACKEND]) -> list[IBMQJob]:
     if option is None:
         return [];
     with CreateBackend(option=option) as (_, backend):
-        backend.jobs()
         if backend is None:
             return [];
-        return backend.jobs(limit=10, descending=True);
+        return backend.jobs(limit=LIMIT_NUM_JOBS, descending=True);

@@ -24,5 +24,6 @@ __all__ = [
     'latest_state',
     'Latest',
     'recover_job',
+    'retrieve_job',
     'RecoverJobWidget',
 ];

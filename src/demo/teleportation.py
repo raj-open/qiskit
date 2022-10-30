@@ -5,7 +5,6 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from src.thirdparty.misc import *;
 from src.thirdparty.quantum import *;
 from src.thirdparty.render import *;
 from src.thirdparty.types import *;
@@ -18,23 +17,14 @@ from src.algorithms import *;
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'action_display_circuit',
     'action_display_statistics',
     'action_prepare_circuit_and_job',
+    'basic_action_display_circuit',
 ];
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# METHODS - ACTIONS
+# MAIN ACTIONS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-def action_display_circuit():
-    '''
-    Displays the main part of the teleportation protocol.
-    '''
-    print('Quantumcircuit for Teleportation:');
-    circuit = teleportation_protocol(include_entanglement=False);
-    display(circuit.draw(output=DRAW_MODE.COLOUR.value, cregbundle=False, initial_state=False));
-    return;
 
 def action_prepare_circuit_and_job(
     option: BACKEND | BACKEND_SIMULATOR,
@@ -102,19 +92,49 @@ def action_prepare_circuit_and_job(
     action(num_shots=num_shots, num_samples=num_samples);
     return;
 
-def action_display_statistics(queue: bool = False):
+def action_display_statistics(
+    queue: bool = False,
+    job_id: Optional[str] = None,
+    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+    as_widget: bool = False,
+):
     '''
     Displays statistics of the job results of running the teleportation protocol.
 
     @inputs
     - `queue` - <boolean> `true` = display widget to choose job from IBM backend queue. `false` = use latest simulation.
+    - `job_id` - <string | None> if set, will attempt to recover this job and display output.
+    - `backend_option` - <enum | None> if set, will be used in combination with `job_id` to retrieve job.
+    - `as_widget` - <boolean> if `true` displays a widget interface so that use can select backend + job before carrying out action.
+        If `false` (default), attempts to retrieve job and carry out action if job exists and is done.
     '''
-    @recover_job(queue=queue, ensure_job_done=True, use_latest=True)
+    @recover_job(
+        queue = queue,
+        ensure_job_done = True,
+        job_id = job_id,
+        backend_option = backend_option,
+        use_latest = True,
+        as_widget = as_widget,
+    )
     def action(job: IBMQJob):
         result = job.result();
         _, [counts_alice, counts_bob] = get_counts(result, [0,1], [2]);
         display(QkVisualisation.plot_histogram(counts_alice, title='Measurements of Alice\'s QBits'));
         display(QkVisualisation.plot_histogram(counts_bob, title='Measurements of Bob\'s QBits'));
+        return;
 
     action();
+    return;
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# BASIC ACTIONS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def basic_action_display_circuit():
+    '''
+    Displays the main part of the teleportation protocol.
+    '''
+    print('Quantumcircuit for Teleportation:');
+    circuit = teleportation_protocol(include_entanglement=False);
+    display(circuit.draw(output=DRAW_MODE.COLOUR.value, cregbundle=False, initial_state=False));
     return;
