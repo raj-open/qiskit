@@ -15,6 +15,7 @@ from dataclasses import dataclass;
 from dataclasses import field;
 from itertools import chain as itertools_chain;
 from itertools import product as itertools_product;
+from lazy_load import lazy;
 from operator import itemgetter;
 from pydantic import BaseModel;
 # cf. https://github.com/mplanchard/safetywrap
@@ -24,28 +25,48 @@ from safetywrap import Nothing;
 from safetywrap import Result;
 from safetywrap import Option;
 from safetywrap import Some;
+from typing import Callable;
+from typing import TypeVar;
+from typing import ParamSpec;
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MODIFICATIONS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ARGS = ParamSpec('ARGS');
+T = TypeVar('T');
+
+def make_lazy(method: Callable[ARGS, T]) -> Callable[ARGS, T]:
+    '''
+    Decorates a method and makes it return a lazy-load output.
+    '''
+    @wraps(method)
+    def wrapped_method(**kwargs) -> T:
+        return lazy(partial(method), **kwargs);
+    return wrapped_method;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'partial',
-    'reduce',
-    'wraps',
     'asdict',
+    'BaseModel',
     'dataclass',
+    'Err',
     'field',
     'Field',
-    'MISSING',
+    'itemgetter',
     'itertools_chain',
     'itertools_product',
-    'itemgetter',
-    'BaseModel',
-    'Err',
+    'make_lazy',
+    'MISSING',
     'Nothing',
     'Ok',
     'Option',
+    'partial',
+    'reduce',
     'Result',
     'Some',
+    'wraps',
 ];

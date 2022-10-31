@@ -12,7 +12,6 @@ from fastapi.security import OAuth2PasswordBearer;
 from fastapi.security import OAuth2PasswordRequestForm;
 import json;
 import jsonschema;
-from lazy_load import lazy;
 from yaml import add_constructor;
 from yaml import load as yaml_load;
 from yaml import FullLoader as yaml_FullLoader;
@@ -30,7 +29,6 @@ __all__ = [
     'OAuth2PasswordRequestForm',
     'json',
     'jsonschema',
-    'lazy',
     'add_constructor',
     'yaml_load',
     'yaml_FullLoader',
