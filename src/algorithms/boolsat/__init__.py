@@ -5,16 +5,14 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from src.setup.assets import *;
-from src.setup.seed import *;
+from src.algorithms.boolsat.dimacs_cnf import *;
+from src.algorithms.boolsat.sat_problem import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'get_rng_seed',
-    'set_rng_seed',
-    'VERSION',
-    'GRAMMAR_DIMACS_CNF',
+    'ProblemSAT',
+    'read_problem_sat_from_dimacs_cnf',
 ];
