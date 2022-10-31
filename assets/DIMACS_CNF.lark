@@ -1,0 +1,40 @@
+// ---------------- IMPORTS + SPECIALS ---------------- //
+
+%import common.WS
+%import common.NUMBER
+%import common.WORD
+
+// ---------------- SYMBOLS ---------------- //
+
+// terminal symbols - noncapture
+WHITESPACE:  /[^\r\n\S]/
+EMPTYLINE:   /^[^\r\n\S]*\r?\n/m
+TEXT:        /[^\r\n]/
+NEWLINE:     /[^\r\n\S]*\r?\n/m
+ENDCODE:     /;/
+COMMENT:     /c/
+INSTRUCTION: /p\s+cnf/
+ENDOFCLAUSE: /0/
+POSITIVE:    /\+/
+NEGATIVE:    /-/
+
+// ---------------- MAIN PARTS ---------------- //
+
+start: comments? instruction clauses
+
+// ---------------- COMMENTS ---------------- //
+comments: (EMPTYLINE* comment)+ EMPTYLINE*
+comment: WHITESPACE* COMMENT (WHITESPACE TEXT*)? NEWLINE
+
+// ---------------- INSTRUCTIONS ---------------- //
+instruction: WHITESPACE* INSTRUCTION WHITESPACE* (WHITESPACE TEXT*)? NEWLINE
+
+// ---------------- CLAUSES ---------------- //
+clauses: EMPTYLINE* (comments? clause)* EMPTYLINE*
+clause: (clause_open NEWLINE)* clause_open ENDOFCLAUSE NEWLINE
+clause_open: WHITESPACE* (literal WHITESPACE+)* -> collapse
+literal: positive_literal -> collapse
+    | negative_literal    -> collapse
+positive_literal: POSITIVE? number
+negative_literal: NEGATIVE number
+number: /[1-9][0-9]*/

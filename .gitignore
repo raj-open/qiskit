@@ -39,6 +39,9 @@
 !/notebooks/*.ipynb
 !/notebooks/*.md
 
+!/assets
+!/assets/*.lark
+
 # NOTE: models are created as part of the build process:
 !/models
 !/models/*.yaml
