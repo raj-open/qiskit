@@ -16,10 +16,10 @@ from src.algorithms.teleport import *;
 __all__ = [
     'deutsch_jozsa_algorithm',
     'deutsch_jozsa_oracle',
-    'generate_satisfaction_problem',
-    'grover_algorithm',
-    'grover_algorithm_naive',
+    'grover_algorithm_from_sat',
+    'grover_iterate',
+    'grover_iterator_from_sat',
     'random_unitary_parameters',
-    'teleportation_protocol',
     'teleportation_protocol_test',
+    'teleportation_protocol',
 ];

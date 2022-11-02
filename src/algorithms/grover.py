@@ -8,83 +8,117 @@
 from src.thirdparty.maths import *;
 from src.thirdparty.quantum import *;
 
+from src.problems.boolsat import *;
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'grover_algorithm',
-    'grover_algorithm_naive',
-    'generate_satisfaction_problem',
+    'grover_algorithm_from_sat',
+    'grover_iterator_from_sat',
+    'grover_iterate',
 ];
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def grover_algorithm(
-    n: int,
+def grover_algorithm_from_sat(
+    problem: ProblemSAT,
+    prob: float = 0,
     verbose: bool = False,
 ) -> QuantumCircuit:
     '''
     Constructs a Quantum-Circuit for Grover's Algorithm.
 
     @inputs
-    - `n` - <integer>, length of set.
+    - `problem` - an instance of the SAT problem.
+    - `prob` - <float> proportion (if known) of solutions which fulfil problem.
     - `verbose` - <bool>, whether or not to display feedback.
     '''
-    raise Exception('Not yet implemented!');
+    n = problem.number_of_variables;
+    Nc = problem.number_of_clauses;
+    final = n + Nc;
 
-def grover_algorithm_naive(
-    n: int,
-    marked: list[int],
-    verbose: bool = False,
-) -> QuantumCircuit:
-    '''
-    Constructs a Quantum-Circuit for the naïve version of Grover's Algorithm
-    with foreknowledge of the marked elements.
-
-    @inputs
-    - `n` - <integer>, length of set.
-    - `marked` - list[<integer>], the set of indexes to find.
-    - `verbose` - <bool>, whether or not to log feedback.
-    '''
-    circuit = QuantumCircuit(n, n);
-    circuit.h(range(n));
-
-    r = heuristic_optimal_rounds(n=n, m=len(marked));
+    # comput optimal number of iterations:
+    r = heuristic_optimal_rounds(n=n, prob=prob);
     if verbose:
-        print(f'{n} qubits, basis state {[f"{x:0{n}b}" for x in marked]} marked, r={r} rounds');
+        print(f'{n} qubits, r={r} rounds');
+    # compute Grover iterate:
+    oracle = oracle_cnf(n=n, clauses=problem.clauses);
+    grit = grover_iterate(oracle=oracle, num_ancilla=Nc+1);
+    grit = grit.decompose();
 
-    # Add r Grover iterates:
-    oracle = phase_oracle(n=n, marked=marked);
-    it = grover_iterate(n=n, oracle=oracle);
-    for _ in range(r):
-        circuit.append(it, range(n));
+    # define circuit shape
+    circuit = QuantumCircuit(
+        QuantumRegister(n, 'q'),
+        QuantumRegister(Nc, 'a'),
+        QuantumRegister(1, 'final'),
+        ClassicalRegister(n, 'c'),
+        ClassicalRegister(1, 'answer'),
+    );
 
-    # Add measurement gates:
+    # compose circuit:
+
+    # set answer bit to |-⟩ so that oracle functions like phase oracle:
+    circuit.x(final);
+    circuit.h(final);
+
+    # main part of grover algorithm:
+    circuit.barrier();
+    circuit.h(range(n));
+    for r in range(r):
+        circuit.append(grit, range(n + Nc + 1), []);
+    circuit.barrier();
+
+    # add measurement gates:
     circuit.measure(range(n), range(n));
+    circuit.measure(final, n);
 
     return circuit;
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# AUXILIARY METHODS
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def grover_iterator_from_sat(
+    problem: ProblemSAT,
+) -> QuantumCircuit:
+    n = problem.number_of_variables;
+    Nc = problem.number_of_clauses;
+    oracle = oracle_cnf(n=n, clauses=problem.clauses);
+    grit = grover_iterate(oracle=oracle, num_ancilla=Nc+1);
+    return grit;
 
-def generate_satisfaction_problem(n: int, size: int = 0) -> list[int]:
+def grover_iterate(
+    oracle: QuantumCircuit,
+    num_ancilla: int = 0,
+) -> QuantumCircuit:
     '''
-    Generates a subset of bits of length `n`
-    which are to be found by a search algorithm.
+    Constructs the Grover Iterate (cf. [§8.1, Kaye (2007)]).
+
+    Steps:
+    - apply oracle
+    - apply the n-qubit Hadamard gate H.
+    - apply U_{0^⊥} .
+    - apply the n-qubit Hadamard gate H.
     '''
-    if size <= 0:
-        size = np.random.randint(0, 2**n);
-    indexes = list(range(2**n));
-    marked = sample(indexes, size=size, replace=False);
-    return marked;
+    n = oracle.num_qubits - num_ancilla;
+    U = -np.eye(2**n);
+    U[0, 0] = 1;
+
+    circuit = oracle.copy();
+    circuit.name = 'Grover-Iterate';
+    circuit.h(range(n));
+    circuit.unitary(QkOperator(U), range(n));
+    circuit.h(range(n));
+    return circuit;
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# AUXILIARY METHODS - HEURISTICS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def heuristic_optimal_rounds(
     n: int,
-    m: int,
+    m: int = 1,
+    prob: float = 0,
 ):
     '''
     Computes an optimal number of rounds to maximise the
@@ -105,50 +139,8 @@ def heuristic_optimal_rounds(
     where `r ∈ ℕ` is chosen,
     such that `|(2r+1)θ - π/2|` is minimised.
     '''
-    u = np.sqrt(m/2**n);
+    prob = m / 2**n if prob <= 0 else prob;
+    u = np.sqrt(prob);
     theta = np.arcsin(u);
-    r = round(pi/(4*theta) - 1/2);
+    r = int(round(pi/(4*theta) - 1/2));
     return r;
-
-def phase_oracle(
-    n: int,
-    marked: list[int],
-) -> QuantumCircuit:
-    '''
-    Consider an unkown function `f : {0,1}ⁿ ⟶ {0,1}`
-    and the associated unitary it generates:
-        `|x⟩|b⟩ ⟼ |x⟩|b ⊕ ƒ(x)⟩`.
-    Since `|x⟩(H|0⟩) ⟼ (-1)^f(x)·|x⟩(H|0⟩)`,
-    we may take under convenient circumstances the second bit to be an eigenstate.
-    We may thus construct from ƒ the diagonal operator `U_f`,
-    which performs a Z-transformation on the 'correct' bits,
-    and fixes the rest.
-    '''
-    circuit = QuantumCircuit(n, name='Phase oracle');
-    A = np.identity(2**n);
-    for index in marked:
-        A[index, index] = -1;
-    circuit.unitary(QkOperator(A), range(n));
-    return circuit;
-
-def grover_iterate(
-    n: int,
-    oracle: QkGate,
-) -> QuantumCircuit:
-    '''
-    Constructs the Grover Iterate (cf. [§8.1, Kaye (2007)]).
-
-    Steps:
-    - apply oracle U_f.
-    - apply the n-qubit Hadamard gate H.
-    - Applies U_{0^⊥} .
-    - Applies the n-qubit Hadamard gate H.
-    '''
-    circuit = QuantumCircuit(n, name='Grover-Iterate')
-    oracle_0 = phase_oracle(n=n, marked=[0]);
-
-    circuit.append(oracle, range(n));
-    circuit.h(range(n));
-    circuit.append(oracle_0, range(n));
-    circuit.h(range(n));
-    return circuit;

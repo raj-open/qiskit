@@ -17,6 +17,7 @@ __all__ = [
     'flatten',
     'get_timestamp_string',
     'binary_sequences',
+    'basis_state_from_string',
 ];
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,6 +41,15 @@ def flatten(X: list[list[Any]]) -> list[Any]:
 # METHODS maths
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def binary_sequences(n: int) -> list[str]:
+def binary_sequences(n: int, reversed: bool = False) -> list[str]:
     seq = itertools_product(*([[0,1]]*n));
-    return [ ''.join([str(x) for x in c]) for c in seq ];
+    words = [ ''.join([str(x) for x in c]) for c in seq ];
+    if reversed:
+        return sorted(words, key=lambda x: x[::-1]);
+    else:
+        return sorted(words);
+
+def basis_state_from_string(word: str, reversed: bool = False) -> list[int]:
+    if reversed:
+        word = word[::-1];
+    return list(map(int, word));
