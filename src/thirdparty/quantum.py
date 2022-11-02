@@ -6,6 +6,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 from enum import Enum;
+import numpy as np;
 import qiskit as qk;
 from qiskit import Aer as QkBackendAer;
 from qiskit import ClassicalRegister;
@@ -18,6 +19,7 @@ from qiskit import assemble as qk_assemble;
 from qiskit import execute as qk_execute;
 from qiskit import transpile as qk_transpile;
 from qiskit import visualization as QkVisualisation;
+from qiskit.circuit.library import MCXGate as QkControlledX;
 from qiskit.extensions import UnitaryGate as QkUnitaryGate;
 from qiskit.providers import ibmq;
 from qiskit.providers import Backend as QkBackend;
@@ -128,6 +130,44 @@ def qk_unitary_gate_pair(
     u_inv.name = f'${label}^{{\\dagger}}$';
     return (u, u_inv);
 
+def convert_state_to_dictionary(
+    vector: QkStatevector,
+    sort: bool = False,
+    clean: bool = False,
+) -> dict[str, complex]:
+    '''
+    Converts a qiskit state vector to a dictionary object.
+
+    NOTE: An entry e.g. `... '11001': alpha ...` is to be interpretted
+    as the component of the output vector for qbits
+    ```text
+    qbit0 = 1
+    qbit1 = 1
+    qbit2 = 0
+    qbit3 = 0
+    qbit4 = 1
+    ```
+    '''
+    vector = np.asarray(vector).reshape(vector.dims());
+
+    MACHINE_ERROR = .5e-15;
+    def remove_machine_error(x: complex) -> complex:
+        return (0 if abs(x.real) < MACHINE_ERROR  else x.real) \
+            + (0 if abs(x.imag) < MACHINE_ERROR else x.imag)*1j;
+
+    iterator = np.nditer(vector, flags=['f_index', 'multi_index'])
+    state = dict();
+    for obj in iterator:
+        e = iterator.multi_index;
+        key = (''.join(map(str, e)))[::-1];
+        value = complex(vector[e]);
+        state[key] = value;
+    if sort:
+        state = dict(sorted(state.items(), key=lambda pair: pair[0]));
+    if clean:
+        state = {key: remove_machine_error(value) for key, value in state.items()};
+    return state;
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -137,12 +177,14 @@ __all__ = [
     'BACKEND',
     'BACKEND_SIMULATOR',
     'ClassicalRegister',
+    'convert_state_to_dictionary',
     'DRAW_MODE',
     'ibmq',
     'IBMQ',
     'IBMQBackend',
     'IBMQJob',
     'IBMQSimulator',
+    'QkControlledX',
     'qk',
     'qk_assemble',
     'qk_execute',
