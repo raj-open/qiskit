@@ -17,17 +17,17 @@ from src.parsers.methods import *;
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'parse_text_as_dimacs_cnf',
+    'parse_text_as_dimacs',
 ];
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # CONSTANTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-_GRAMMAR = GRAMMAR_DIMACS_CNF;
-_GRAMMAR_NAME = 'DIMACS-CNF';
+_GRAMMAR = GRAMMAR_DIMACS;
+_GRAMMAR_NAME = 'DIMACS';
 
-TYPE_LITERAL: TypeAlias = tuple[Literal[-1] | Literal[1], int];
+TYPE_LITERAL: TypeAlias = tuple[Literal[0] | Literal[1], int];
 TYPE_DISJ: TypeAlias = list[TYPE_LITERAL];
 TYPE_CNF: TypeAlias = list[TYPE_DISJ];
 
@@ -35,7 +35,7 @@ TYPE_CNF: TypeAlias = list[TYPE_DISJ];
 # MAIN METHODS string -> Expression
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def parse_text_as_dimacs_cnf(text: str) -> TYPE_CNF:
+def parse_text_as_dimacs(text: str) -> TYPE_CNF:
     try:
         u = tokenise_input(
             grammar_name = _GRAMMAR_NAME,
@@ -59,7 +59,7 @@ def parse_problem(u: LarkTree) -> Generator[
     None,
 ]:
     '''
-    Parses .cnf file format to a SAT-problem.
+    Parses file in the dimacs format to a SAT problem description.
     '''
     children = sub_expressions(u);
     match u.data:
@@ -90,8 +90,8 @@ def parse_literal(u: LarkTree) -> TYPE_LITERAL:
         raise Exception('Could not read index of literal!');
     match u.data:
         case 'positive_literal':
-            return (+1, index);
+            return (1, index);
         case 'negative_literal':
-            return (-1, index);
+            return (0, index);
         case _:
             raise Exception('Unexpected literal!');

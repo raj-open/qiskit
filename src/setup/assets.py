@@ -15,7 +15,7 @@ from src.thirdparty.logic import *;
 
 __all__ = [
     'VERSION',
-    'GRAMMAR_DIMACS_CNF',
+    'GRAMMAR_DIMACS',
 ];
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,7 +23,7 @@ __all__ = [
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PATH_TO_VERSION = 'dist/VERSION';
-PATH_TO_GRAMMAR_DIMACS_CNF: str = 'assets/DIMACS_CNF.lark'
+PATH_TO_GRAMMAR_DIMACS: str = 'assets/DIMACS.lark'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # METHODS - lazy load assets
@@ -34,12 +34,12 @@ def get_version() -> str:
     return read_file(PATH_TO_VERSION).strip();
 
 @make_lazy
-def get_grammar_dimacs_cnf() -> str:
-    return read_file(PATH_TO_GRAMMAR_DIMACS_CNF).strip();
+def get_grammar_dimacs() -> str:
+    return read_file(PATH_TO_GRAMMAR_DIMACS).strip();
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Set assets (lazily)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 VERSION = get_version();
-GRAMMAR_DIMACS_CNF = get_grammar_dimacs_cnf();
+GRAMMAR_DIMACS = get_grammar_dimacs();

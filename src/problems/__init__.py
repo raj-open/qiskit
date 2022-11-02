@@ -5,16 +5,16 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from src.setup.assets import *;
-from src.setup.seed import *;
+from src.problems.boolsat import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'get_rng_seed',
-    'set_rng_seed',
-    'VERSION',
-    'GRAMMAR_DIMACS',
+    'oracle_cnf',
+    'oracle_disjunct',
+    'phase_oracle_dnf',
+    'ProblemSAT',
+    'read_problem_sat_from_dimacs_cnf',
 ];
