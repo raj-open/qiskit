@@ -61,7 +61,8 @@ def oracle_disjunct(
     circuit = QuantumCircuit(n + 1);
     literals_pos = [ index for index, x in enumerate(code) if x == 1 ];
     # equivalent to: negate just literals_neg then negate all.
-    circuit.x(literals_pos);
+    if len(literals_pos) > 0:
+        circuit.x(literals_pos);
     # store conjunction in ancillary bit
     circuit.mcx(list(range(n)), final)
     circuit.x(range(n + 1));
