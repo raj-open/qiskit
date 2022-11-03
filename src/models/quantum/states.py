@@ -64,11 +64,23 @@ def get_ouput_state_of_circuit(
     test_circuit = test_circuit.decompose();
 
     # create and run a single job in the simulator
-    job = backend.run(circuits=test_circuit, shots=1);
+    job = qk_execute(
+        experiments = test_circuit,
+        backend = backend,
+        shots = 1,
+    );
+
+    # wait for job to be finished and store results:
+    if not job.done():
+        job.wait_for_final_state(timeout=30);
+    result = job.result();
 
     # extract results as a vector
-    result = job.result();
-    vector = result.get_statevector(test_circuit);
+    try:
+        vector = result.get_statevector(test_circuit);
+    except:
+        # if this fails, then return empty state:
+        return dict();
 
     # store state as a dictionary for ease of use:
     state_out = convert_state_to_dictionary(vector, sort=True, clean=True);
@@ -90,7 +102,7 @@ def plot_ouput_state_of_circuit(
     figsize: tuple[int, int] = (10, 4),
     dpi: int = 360,
     q_min: float = 0.05,
-) -> mpltFigure:
+) -> Optional[mpltFigure]:
     '''
     Extends the circuit, so that an initial state is forced
     and captures the output state as a vector (without measuring it).
@@ -127,6 +139,9 @@ def plot_ouput_state_of_circuit(
 
     # get state and optionally sort:
     state_out = get_ouput_state_of_circuit(circuit=circuit, state=state);
+    if len(state_out) == 0:
+        print('[WARNING] Output state was empty. Plot cancelled.')
+        return;
 
     # optionally filter / sort output:
     if filter_by is not None:
