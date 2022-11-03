@@ -110,9 +110,12 @@ def action_display_statistics(
     def action(job: IBMQJob):
         result = job.result();
         N, counts, [counts_0, counts_1] = get_counts(result, [0], [1], pad=True);
-        display(QkVisualisation.plot_distribution(counts, title=f'Measurements (batch size: {N})' ));
-        display(QkVisualisation.plot_distribution(counts_0, title=f'Measurements of QBit 0 (batch size: {N})'));
-        display(QkVisualisation.plot_distribution(counts_1, title=f'Measurements of QBit 1 (batch size: {N})'));
+        if N > 0:
+            display(QkVisualisation.plot_distribution(counts, title=f'Measurements (batch size: {N})' ));
+            display(QkVisualisation.plot_distribution(counts_0, title=f'Measurements of QBit 0 (batch size: {N})'));
+            display(QkVisualisation.plot_distribution(counts_1, title=f'Measurements of QBit 1 (batch size: {N})'));
+        else:
+            print('[WARNING] No measurements were found!');
 
     action();
     return;
