@@ -466,9 +466,6 @@ def get_backend_name(backend_option: Optional[BACKEND | BACKEND_SIMULATOR]):
     return '—';
 
 def is_job_done(job: Optional[IBMQJob], queue: bool) -> bool:
-    '''
-    NOTE: Job is deemed to be done if using the simulator, since no async methods are used.
-    '''
     if job is None:
         return False;
-    return job.done() if queue else True;
+    return job.done();
