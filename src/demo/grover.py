@@ -11,9 +11,9 @@ from src.thirdparty.render import *;
 from src.thirdparty.types import *;
 
 from src.api import *;
-from src.circuits import *;
 from src.algorithms import *;
-from src.problems.boolsat import *;
+from src.models.boolsat import *;
+from src.models.quantum import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS

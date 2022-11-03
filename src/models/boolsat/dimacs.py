@@ -10,7 +10,7 @@ from src.thirdparty.io import *;
 from src.thirdparty.types import *;
 
 from src.parsers.dimacs import *;
-from src.problems.boolsat.problem import *;
+from src.models.boolsat import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS

@@ -8,7 +8,7 @@
 from src.thirdparty.maths import *;
 from src.thirdparty.quantum import *;
 
-from src.problems.boolsat import *;
+from src.models.boolsat import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS

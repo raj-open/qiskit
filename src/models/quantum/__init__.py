@@ -5,18 +5,13 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from src.problems.boolsat.dimacs import *;
-from src.problems.boolsat.problem import *;
-from src.problems.boolsat.circuits import *;
+from src.models.quantum.states import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'oracle_cnf',
-    'oracle_disjunct',
-    'phase_oracle_dnf',
-    'ProblemSAT',
-    'read_problem_sat_from_dimacs_cnf',
+    'get_ouput_state_of_circuit',
+    'plot_ouput_state_of_circuit',
 ];
