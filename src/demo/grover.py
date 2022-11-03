@@ -116,11 +116,10 @@ def action_display_statistics(
     def action(job: IBMQJob):
         n = problem.number_of_variables;
         result = job.result();
-        N, counts, [counts_inputs, counts_outputs] = get_counts(result, list(range(n)), [n], pad=True);
+        N, counts, [counts_inputs] = get_counts(result, list(range(n)), pad=True);
         if N > 0:
             display(QkVisualisation.plot_distribution(counts, title=f'Measurements (batch size: {N})'));
             display(QkVisualisation.plot_distribution(counts_inputs, title=f'Measurements of search bits (batch size: {N})'));
-            display(QkVisualisation.plot_distribution(counts_outputs, title=f'Measurements of answer bit (batch size: {N})'));
         else:
             print('[WARNING] No measurements were found!');
 
@@ -146,10 +145,11 @@ def basic_action_prepare_problem(
 
     NOTE: At least one of `path` or `text` must be set!
     '''
-    if path is not None:
-        print(f'Load SAT Problem from {path or "(text entry)"}:')
-    else:
-        print(f'Load SAT Problem from {path or "(text entry)"}.')
+    if verbose:
+        if path is not None:
+            print(f'Load SAT Problem from {path or "(text entry)"}:')
+        else:
+            print(f'Load SAT Problem from {path or "(text entry)"}.')
 
     # construct SAT problem from file or text:
     problem = read_problem_sat_from_dimacs_cnf(name='Grover', path=path, problem_text=text);

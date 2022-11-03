@@ -56,14 +56,15 @@ def grover_algorithm_from_sat(
         QuantumRegister(Nc, 'a'),
         QuantumRegister(1, 'final'),
         ClassicalRegister(n, 'c'),
+        # ClassicalRegister(Nc, 'aux'),
         ClassicalRegister(1, 'answer'),
     );
 
     # compose circuit:
 
-    # set answer bit to |-⟩ so that oracle functions like phase oracle:
-    circuit.x(final);
-    circuit.h(final);
+    # set ancilla bits to |-⟩ so that oracle functions behave like phase oracle:
+    circuit.x(range(n,n + Nc + 1));
+    circuit.h(range(n,n + Nc + 1));
 
     # main part of grover algorithm:
     circuit.barrier();
@@ -71,6 +72,9 @@ def grover_algorithm_from_sat(
     for r in range(r):
         circuit.append(grit, range(n + Nc + 1), []);
     circuit.barrier();
+
+    # desire: transform |-⟩ to 1 so only undo the Hadamards on the ancilla bits:
+    circuit.h(range(n,n + Nc + 1));
 
     # add measurement gates:
     circuit.measure(range(n), range(n));
