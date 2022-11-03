@@ -9,6 +9,7 @@ from __future__ import annotations;
 
 from src.thirdparty.code import *;
 from src.thirdparty.config import *;
+from src.thirdparty.misc import *;
 from src.thirdparty.quantum import *;
 from src.thirdparty.system import *;
 from src.thirdparty.types import *;
@@ -50,6 +51,11 @@ def get_counts(
             };
     else:
         counts = counts_raw;
+    # NOTE: Qiskit places spaces in key to signify different blocks of registered cbits. Remove these here:
+    counts = {
+        re.sub(pattern=r'\s+', repl='', string=key): value
+        for key, value in counts.items()
+    };
     # NOTE: qiskit orders the measured bits from buttom to top, so reverse this.
     if pad:
         n = get_key_length(counts);

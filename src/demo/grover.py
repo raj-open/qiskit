@@ -20,6 +20,7 @@ from src.models.quantum import *;
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
+    'basic_action_prepare_problem',
     'action_display_statistics',
     'action_prepare_circuit_and_job',
     'basic_action_display_circuit',
@@ -32,10 +33,8 @@ __all__ = [
 def action_prepare_circuit_and_job(
     option: BACKEND | BACKEND_SIMULATOR,
     num_shots: int,
-    path: Optional[str] = None,
-    text: Optional[str] = None,
+    problem: ProblemSAT,
     prob: float = 0.,
-    verbose: bool = False,
 ):
     '''
     Prepares the quntum circuit and jobs for the Grover algorithm.
@@ -43,19 +42,11 @@ def action_prepare_circuit_and_job(
     @inputs
     - `backend` - an enum value to indicate which backend to use.
     - `num_shots` - number of shots of the job prepared.
-    - `path` - <string> optional path to a SAT problem.
-    - `text` - <string> optional direct input in DIMACS format of SAT problem.
+    - `problem` - an instance of a SAT problem.
     - `prob` - <float> estimated proportion of models which satisfy the problem (leave as 0. if unknown).
-    - `verbose` - <boolean> if `true` will print out description of SAT problem.
 
     NOTE: At least one of `path` or `text` must be set!
     '''
-    problem = read_problem_sat_from_dimacs_cnf(name='Grover', path=path, problem_text=text);
-    if verbose:
-        print(f'SAT Problem loaded from {path or "(text entry)"}:')
-        display(problem.repr(mode=PRINT_MODE.LATEX, linebreaks=True));
-    else:
-        print(f'SAT Problem loaded from {path or "(text entry)"}.')
     n = problem.number_of_variables;
     Nc = problem.number_of_clauses;
 
@@ -98,6 +89,7 @@ def action_prepare_circuit_and_job(
     return;
 
 def action_display_statistics(
+    problem: ProblemSAT,
     queue: bool = False,
     job_id: Optional[str] = None,
     backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
@@ -122,10 +114,13 @@ def action_display_statistics(
         as_widget = as_widget,
     )
     def action(job: IBMQJob):
+        n = problem.number_of_variables;
         result = job.result();
-        N, counts, _ = get_counts(result, pad=True);
+        N, counts, [counts_inputs, counts_outputs] = get_counts(result, list(range(n)), [n], pad=True);
         if N > 0:
             display(QkVisualisation.plot_distribution(counts, title=f'Measurements (batch size: {N})'));
+            display(QkVisualisation.plot_distribution(counts_inputs, title=f'Measurements of search bits (batch size: {N})'));
+            display(QkVisualisation.plot_distribution(counts_outputs, title=f'Measurements of answer bit (batch size: {N})'));
         else:
             print('[WARNING] No measurements were found!');
 
@@ -136,9 +131,36 @@ def action_display_statistics(
 # BASIC ACTIONS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def basic_action_display_circuit(
+def basic_action_prepare_problem(
     path: Optional[str] = None,
     text: Optional[str] = None,
+    verbose: bool = False,
+) -> ProblemSAT:
+    '''
+    Creates SAT problem from file or string.
+
+    @inputs
+    - `path` - <string> optional path to a SAT problem.
+    - `text` - <string> optional direct input in DIMACS format of SAT problem.
+    - `verbose` - <boolean> if `true` will print out description of SAT problem.
+
+    NOTE: At least one of `path` or `text` must be set!
+    '''
+    if path is not None:
+        print(f'Load SAT Problem from {path or "(text entry)"}:')
+    else:
+        print(f'Load SAT Problem from {path or "(text entry)"}.')
+
+    # construct SAT problem from file or text:
+    problem = read_problem_sat_from_dimacs_cnf(name='Grover', path=path, problem_text=text);
+
+    if verbose:
+        display(problem.repr(mode=PRINT_MODE.LATEX, linebreaks=True));
+
+    return problem;
+
+def basic_action_display_circuit(
+    problem: ProblemSAT,
     prob_min: float = 0.1,
     q_min: float = 0.1,
 ):
@@ -146,22 +168,14 @@ def basic_action_display_circuit(
     Displays the quantum circuit for the Grover algorithm.
 
     @inputs
-    - `path` - <string> optional path to a SAT problem.
-    - `text` - <string> optional direct input in DIMACS format of SAT problem
+    - `problem` - an instance of a SAT problem.
     - `q_min` - <float> a threshold value to avoid overcroweded plots.
     - `prob_min` - <float> a threshold value to avoid overcrowded plots.
 
     The components of an example output statevector will be shown.
     All components whos squared values lies below `prob_min` will be cut.
     The lower `q_min`-quantile will be cut.
-
-    NOTE: At least one of `path` or `text` must be set!
     '''
-    # construct SAT problem from file:
-    problem = read_problem_sat_from_dimacs_cnf(name='Grover', path=path, problem_text=text);
-    print(f'SAT Problem loaded from {path}:')
-    display(problem.repr(mode=PRINT_MODE.LATEX, linebreaks=True));
-
     print('Quantumcircuit for Grover Iterator:');
     grit = grover_iterator_from_sat(problem=problem);
     display(grit.draw(output=DRAW_MODE.COLOUR.value, cregbundle=False, initial_state=False));

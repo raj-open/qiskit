@@ -164,7 +164,7 @@ def plot_ouput_state_of_circuit(
     X, Y = list(state_out.keys()), np.asarray(list(state_out.values()));
     values = np.abs(Y);
     th = np.quantile(values, q=q_min);
-    X = [ x if abs(y) >= th else '—' for x, y in zip(X, Y) ];
+    X = [ f'‖{x}⟩' if abs(y) >= th else '—' for x, y in zip(X, Y) ];
     match mode:
         case PLOT_VALUES.ABSOLUTE:
             Y = np.abs(Y);
@@ -196,7 +196,7 @@ def plot_ouput_state_of_circuit(
         part = part,
     );
     mplt.title(label=title, fontdict={'size': 12});
-    mplt.xticks(rotation=-75, ha='right', fontsize=10);
+    mplt.xticks(rotation=75, ha='right', fontsize=10);
 
     N = len(X);
     ax.stem(Y);
