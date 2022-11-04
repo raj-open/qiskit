@@ -69,7 +69,7 @@ def action_prepare_circuit_and_job(
             # name = 'deutsch-jozsa-algorithm',
             # tags = ['algorithm=deutsch-jozsa', f'shots={num_shots}', f'bits={n}'],
         );
-        display(latest_info(backend=backend, job=job));
+        display_latest_info(backend=backend, job=job);
         latest_state.set_job(job, queue=isinstance(option, BACKEND));
         return;
 
