@@ -157,6 +157,7 @@ export name format="html" theme="light":
     @{{PYTHON}} -m jupyter nbconvert \
         --allow-chromium-download \
         --HTMLExporter.theme={{theme}} \
+        --TemplateExporter.exclude_input=false \
         --to {{format}} \
         --output-dir examples \
         notebooks/{{name}}.ipynb
