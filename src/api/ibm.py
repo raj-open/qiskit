@@ -9,9 +9,10 @@ from __future__ import annotations;
 
 from src.thirdparty.code import *;
 from src.thirdparty.config import *;
+from src.thirdparty.misc import *;
 from src.thirdparty.quantum import *;
-from src.thirdparty.system import *;
 from src.thirdparty.render import *;
+from src.thirdparty.system import *;
 from src.thirdparty.types import *;
 
 from src.core.env import *;
@@ -163,6 +164,7 @@ def connect_to_ibm_account_force_reload() -> QkAccountProvider:
         project    = project,
         url        = url,
         overwrite  = True,
+        warnings   = False,
     );
     provider = IBMQ.load_account();
     return provider;
@@ -172,7 +174,24 @@ def display_backends():
     backends = provider.backends();
     names_simulator = [str(be) for be in backends if isinstance(be, IBMQSimulator)];
     names_queue = [str(be) for be in backends if isinstance(be, IBMQBackend) and not isinstance(be, IBMQSimulator)];
-    print('\x1b[1mAVAILABLE BACKENDS (SIMULATOR):\x1b[0m\n- ' + '\n- '.join(names_simulator));
-    print('----');
-    print('\x1b[1mAVAILABLE BACKENDS (QUEUE):\x1b[0m\n- ' + '\n- '.join(names_queue));
+    items_simulator = '\n'.join([ f'<li>{item}</li>' for item in names_simulator]);
+    items_queue = '\n'.join([ f'<li>{item}</li>' for item in names_queue]);
+    display(HTML(
+        dedent(
+            '''
+            <b>AVAILABLE BACKENDS (SIMULATOR):</b>
+            <ul>
+            {items_simulator}
+            </ul>
+            </br>
+            <b>AVAILABLE BACKENDS (QUEUE):</b>
+            <ul>
+            {items_queue}
+            </ul>
+            '''
+        ).format(
+            items_simulator = items_simulator,
+            items_queue = items_queue,
+        )
+    ));
     return;

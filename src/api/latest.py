@@ -11,12 +11,14 @@ from src.thirdparty.code import *;
 from src.thirdparty.misc import *;
 from src.thirdparty.quantum import *;
 from src.thirdparty.types import *;
+from src.thirdparty.render import *;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
+    'display_latest_info',
     'Latest',
     'latest_info',
     'latest_state',
@@ -83,6 +85,17 @@ def latest_info(backend: QkBackend, job: IBMQJob) -> str:
         - job id: \x1b[1m{job.job_id()}\x1b[0m
         '''
     );
+
+def display_latest_info(backend: QkBackend, job: IBMQJob):
+    display(HTML(dedent(
+        f'''
+        <b>NOTE:</b>
+        <ul>
+            <li>backend: <b>{backend}</b></li>
+            <li>job id: <b>{job.job_id()}</b></li>
+        </ul>
+        '''
+    )));
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # GLOBAL VARIABLE

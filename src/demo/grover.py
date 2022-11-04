@@ -59,7 +59,7 @@ def action_prepare_circuit_and_job(
         prob: float = 0.,
     ):
         # create circuit:
-        print('Quantumcircuit for testing Grover algorithm');
+        display(HTML('<h3>Quantumcircuit for testing Grover algorithm</h3>'));
         circuit = grover_algorithm_from_sat(problem=problem, prob=prob);
 
         # display circuit:
@@ -80,7 +80,7 @@ def action_prepare_circuit_and_job(
             # name = 'grovers-algorithm',
             # tags = ['algorithm=grover', f'shots={num_shots}', f'size={k}'],
         );
-        print(latest_info(backend=backend, job=job));
+        display_latest_info(backend=backend, job=job);
         latest_state.set_job(job, queue=isinstance(option, BACKEND));
         return;
 
@@ -112,6 +112,8 @@ def action_display_statistics(
         backend_option = backend_option,
         use_latest = True,
         as_widget = as_widget,
+        # if working with the simulator, wait until the job is done:
+        wait = not queue,
     )
     def action(job: IBMQJob):
         n = problem.number_of_variables;
@@ -121,7 +123,7 @@ def action_display_statistics(
             display(QkVisualisation.plot_distribution(counts, title=f'Measurements (batch size: {N})'));
             display(QkVisualisation.plot_distribution(counts_inputs, title=f'Measurements of search bits (batch size: {N})'));
         else:
-            print('[WARNING] No measurements were found!');
+            display(HTML('<p style="color:red;"><b>[WARNING]</b> No measurements were found!</p>'));
 
     action();
     return;
@@ -147,9 +149,9 @@ def basic_action_prepare_problem(
     '''
     if verbose:
         if path is not None:
-            print(f'Load SAT Problem from {path or "(text entry)"}:')
+            display(HTML(f'Load SAT Problem from <b><code>{path}</code></b>:'))
         else:
-            print(f'Load SAT Problem from {path or "(text entry)"}.')
+            display(HTML(f'Load SAT Problem from text entry</b>.'))
 
     # construct SAT problem from file or text:
     problem = read_problem_sat_from_dimacs_cnf(name='Grover', path=path, problem_text=text);
@@ -176,7 +178,7 @@ def basic_action_display_circuit(
     All components whos squared values lies below `prob_min` will be cut.
     The lower `q_min`-quantile will be cut.
     '''
-    print('Quantumcircuit for Grover Iterator:');
+    display(HTML('<h3>Quantumcircuit for Grover Iterator</h3>'));
     grit = grover_iterator_from_sat(problem=problem);
     display(grit.draw(output=DRAW_MODE.COLOUR.value, cregbundle=False, initial_state=False));
     Nc = problem.number_of_clauses;

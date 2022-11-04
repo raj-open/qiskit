@@ -8,6 +8,7 @@
 import os;
 from pathlib import Path;
 import sys;
+import warnings;
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
@@ -17,4 +18,5 @@ __all__ = [
     'os',
     'Path',
     'sys',
+    'warnings',
 ];

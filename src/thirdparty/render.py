@@ -6,6 +6,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 from enum import Enum;
+from IPython.display import HTML;
 from IPython.display import Latex;
 from IPython.display import display_latex;
 from IPython.display import display_png;
@@ -44,11 +45,12 @@ __all__ = [
     'display_markdown',
     'display_png',
     'display',
+    'HTML',
     'Latex',
-    'widgets',
+    'mplt',
+    'mpltAxes',
+    'mpltFigure',
     'PLOT_VALUES',
     'PRINT_MODE',
-    'mplt',
-    'mpltFigure',
-    'mpltAxes',
+    'widgets',
 ];

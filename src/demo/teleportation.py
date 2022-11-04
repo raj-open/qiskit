@@ -52,7 +52,7 @@ def action_prepare_circuit_and_job(
         num_samples: int,
     ):
         # create circuit:
-        print('Quantumcircuit for testing teleportation protocol');
+        display(HTML('<h3>Quantumcircuit for testing teleportation protocol</h3>'));
         circuit_scheme, params = teleportation_protocol_test();
 
         # display circuit:
@@ -85,7 +85,7 @@ def action_prepare_circuit_and_job(
             # name = 'teleportation-protocoll-with-random-states',
             # tags = ['algorithm=teleportation', 'state=random', f'shots={num_shots}', f'samples={num_samples}'],
         );
-        print(latest_info(backend=backend, job=job));
+        display_latest_info(backend=backend, job=job);
         latest_state.set_job(job, queue=isinstance(option, BACKEND));
         return;
 
@@ -115,6 +115,8 @@ def action_display_statistics(
         backend_option = backend_option,
         use_latest = True,
         as_widget = as_widget,
+        # if working with the simulator, wait until the job is done:
+        wait = not queue,
     )
     def action(job: IBMQJob):
         result = job.result();
@@ -123,7 +125,7 @@ def action_display_statistics(
             display(QkVisualisation.plot_distribution(counts_alice, title=f'Measurements of Alice\'s QBits (batch size: {N})'));
             display(QkVisualisation.plot_distribution(counts_bob, title=f'Measurements of Bob\'s QBits (batch size: {N})'));
         else:
-            print('[WARNING] No measurements were found!');
+            display(HTML('<p style="color:red;"><b>[WARNING]</b> No measurements were found!</p>'));
         return;
 
     action();
@@ -137,7 +139,7 @@ def basic_action_display_circuit():
     '''
     Displays the main part of the teleportation protocol.
     '''
-    print('Quantumcircuit for Teleportation:');
+    display(HTML('<h3>Quantumcircuit for Teleportation</h3>'));
     circuit = teleportation_protocol(include_entanglement=False);
     display(circuit.draw(output=DRAW_MODE.COLOUR.value, cregbundle=False, initial_state=False));
     return;

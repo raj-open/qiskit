@@ -18,6 +18,7 @@ __all__ = [
     'connect_to_backend',
     'CreateBackend',
     'display_backends',
+    'display_latest_info',
     'get_counts',
     'get_ibm_account',
     'latest_info',

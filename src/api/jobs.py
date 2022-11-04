@@ -95,6 +95,7 @@ def recover_job(
     backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
     use_latest: bool = True,
     ensure_job_done: bool = True,
+    wait: bool = False,
     as_widget: bool = False,
 ) -> Callable[
     [Callable[Concatenate[IBMQJob, ARGS], T]],
@@ -111,8 +112,11 @@ def recover_job(
       - Option (semi-)ignored, if a job can be recovered from `backend_option` + `job_id`.
       - Option completely ignored, if `as_widget=True` is used.
     - `ensure_job_done` - <boolean> if `true` (default) hinders action from being performed, when job does not have DONE status.
+    - `wait` - <boolean> if `true` waits for job to be finished.
     - `as_widget` - <boolean> if `true` displays a widget interface so that use can select backend + job before carrying out action.
         If `false` (default), attempts to retrieve job and carry out action if job exists and is done.
+
+    NOTE: It is advisible to only use `wait=True` in the simulator.
 
     @returns
     a decorator for actions, with example usage:
@@ -148,26 +152,30 @@ def recover_job(
             def wrapped_action(**kwargs) -> None:
                 # retrieve job or else use latest job:
                 job = retrieve_job(queue=queue, job_id=job_id, backend_option=backend_option) or last_job;
+                # if in simulator, forcibly wait until job is done:
+                if wait:
+                    display(HTML('<p style="color:blue;"><b>[INFO]</b> Wait for job to finish...</b>'));
+                    job.wait_for_final_state();
                 # carry out action only if done, unless `ensure_job_done=False`:
                 if not ensure_job_done or is_job_done(job=job, queue=queue):
                     action(job, **kwargs);
                 # otherwise optionally display feedback:
                 else:
                     aspects = get_job_aspects(job=job, backend_option=backend_option);
-                    print(dedent(
+                    display(HTML(dedent(
                         f'''
                         Job either could not be recovered or is not done.
                         Details of recovered job:
-
-                        - backend: \x1b[1m{aspects.backend}\x1b[0m
-                        - label:   \x1b[1m{aspects.label}\x1b[0m
-                        - id:      \x1b[1m{aspects.id}\x1b[0m
-                        - tag:     \x1b[1m{aspects.tags}\x1b[0m
-                        - status:  \x1b[1m{aspects.status}\x1b[0m
-
-                        Try again later or use \x1b[1mas_widget=True\x1b[0m.
+                        <ul>
+                            <li>backend: <b>{aspects.backend}</b></li>
+                            <li>label:   <b>{aspects.label}</b></li>
+                            <li>id:      <b>{aspects.id}</b></li>
+                            <li>tag:     <b>{aspects.tags}</b></li>
+                            <li>status:  <b>{aspects.status}</b></li>
+                        </ul>
+                        Try again later or use <b><code>as_widget=True</code></b>.
                         '''
-                    ));
+                    )));
                 return;
             return wrapped_action;
 

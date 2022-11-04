@@ -48,7 +48,7 @@ def action_prepare_circuit_and_job(
     ):
         queue = isinstance(option, BACKEND);
         # create circuit:
-        print(f'Example quantum circuit with {"backend" if queue else "simulator"}');
+        display(HTML(f'<h3>Example quantum circuit with {"backend" if queue else "simulator"}</h3>'));
         u, u_inv = qk_unitary_gate_pair(theta1=theta1, theta2=theta2, theta3=theta3);
         circuit = QuantumCircuit(2, 2);
         circuit.append(u, [1]);
@@ -76,7 +76,7 @@ def action_prepare_circuit_and_job(
             shots = num_shots,
             optimization_level = 3,
         );
-        print(latest_info(backend=backend, job=job));
+        display_latest_info(backend=backend, job=job);
         latest_state.set_job(job, queue=queue);
         return;
 
@@ -106,6 +106,8 @@ def action_display_statistics(
         backend_option = backend_option,
         use_latest = True,
         as_widget = as_widget,
+        # if working with the simulator, wait until the job is done:
+        wait = not queue,
     )
     def action(job: IBMQJob):
         result = job.result();
@@ -115,7 +117,7 @@ def action_display_statistics(
             display(QkVisualisation.plot_distribution(counts_0, title=f'Measurements of QBit 0 (batch size: {N})'));
             display(QkVisualisation.plot_distribution(counts_1, title=f'Measurements of QBit 1 (batch size: {N})'));
         else:
-            print('[WARNING] No measurements were found!');
+            display(HTML('<p style="color:red;"><b>[WARNING]</b> No measurements were found!</p>'));
 
     action();
     return;
@@ -128,7 +130,7 @@ def basic_action_display_circuit(theta1: int, theta2: int, theta3: int):
     '''
     Displays the quantum circuit for the Examples notebook.
     '''
-    print('Example quantum circuit');
+    display(HTML('<h3>Example quantum circuit</h3>'));
     circuit = QuantumCircuit(2, 2);
     circuit.u(theta1, theta2, theta3, 1);
     circuit.barrier();

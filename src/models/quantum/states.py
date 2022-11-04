@@ -140,7 +140,7 @@ def plot_ouput_state_of_circuit(
     # get state and optionally sort:
     state_out = get_ouput_state_of_circuit(circuit=circuit, state=state);
     if len(state_out) == 0:
-        print('[WARNING] Output state was empty. Plot cancelled.')
+        display(HTML('<p style="color:red;"><b>[WARNING]</b> Output state was empty. Plot cancelled.</p>'))
         return;
 
     # optionally filter / sort output:
