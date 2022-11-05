@@ -18,7 +18,8 @@ See [examples/examples.md](../examples/examples.md).
 ...
 ```
 
-    Example quantum circuit
+
+<h3>Example quantum circuit</h3>
 
 
 
@@ -33,7 +34,8 @@ See [examples/examples.md](../examples/examples.md).
 ...
 ```
 
-    Example quantum circuit with simulator
+
+<h3>Example quantum circuit with simulator</h3>
 
 
 
@@ -42,15 +44,16 @@ See [examples/examples.md](../examples/examples.md).
 
 
 
-    NOTE:
-    - backend: aer_simulator
-    - job id: *****
+
+<b>NOTE:</b>
+<ul>
+    <li>backend: <b>aer_simulator</b></li>
+    <li>job id: <b>*****</b></li>
+</ul>
 
 
 
-
-![png](examples_files/examples_3_3.png)
-
+<p style="color:blue;"><b>[INFO]</b> Wait for job to finish...</b>
 
 
 
@@ -66,25 +69,36 @@ See [examples/examples.md](../examples/examples.md).
 
 
 
+
+![png](examples_files/examples_3_6.png)
+
+
+
+
 ```python
 '''Display list of IBM backend options'''
 ...
 ```
 
-    AVAILABLE BACKENDS (SIMULATOR):
-    - ibmq_qasm_simulator
-    - simulator_statevector
-    - simulator_mps
-    - simulator_extended_stabilizer
-    - simulator_stabilizer
-    ----
-    AVAILABLE BACKENDS (QUEUE):
-    - ibmq_lima
-    - ibmq_belem
-    - ibmq_quito
-    - ibmq_manila
-    - ibm_nairobi
-    - ibm_oslo
+
+<b>AVAILABLE BACKENDS (SIMULATOR):</b>
+<ul>
+<li>ibmq_qasm_simulator</li>
+<li>simulator_statevector</li>
+<li>simulator_mps</li>
+<li>simulator_extended_stabilizer</li>
+<li>simulator_stabilizer</li>
+</ul>
+</br>
+<b>AVAILABLE BACKENDS (QUEUE):</b>
+<ul>
+<li>ibmq_lima</li>
+<li>ibmq_belem</li>
+<li>ibmq_quito</li>
+<li>ibmq_manila</li>
+<li>ibm_nairobi</li>
+<li>ibm_oslo</li>
+</ul>
 
 
 
@@ -92,6 +106,24 @@ See [examples/examples.md](../examples/examples.md).
 '''Example usage of IBM cloud backend (queue)'''
 ...
 ```
+
+
+<h3>Example quantum circuit with backend</h3>
+
+
+
+
+![png](examples_files/examples_5_1.png)
+
+
+
+
+<b>NOTE:</b>
+<ul>
+    <li>backend: <b>ibmq_belem</b></li>
+    <li>job id: <b>*****</b></li>
+</ul>
+
 
 
 ```python

@@ -29,10 +29,11 @@ See [examples/teleportation.md](../examples/teleportation.md).
 
 
 ```python
-...
+basic_action_display_circuit();
 ```
 
-    Quantumcircuit for Teleportation:
+
+<h3>Quantumcircuit for Teleportation</h3>
 
 
 
@@ -47,7 +48,8 @@ See [examples/teleportation.md](../examples/teleportation.md).
 ...
 ```
 
-    Quantumcircuit for testing teleportation protocol
+
+<h3>Quantumcircuit for testing teleportation protocol</h3>
 
 
 
@@ -56,15 +58,16 @@ See [examples/teleportation.md](../examples/teleportation.md).
 
 
 
-    NOTE:
-    - backend: aer_simulator
-    - job id: *****
+
+<b>NOTE:</b>
+<ul>
+    <li>backend: <b>aer_simulator</b></li>
+    <li>job id: <b>*****</b></li>
+</ul>
 
 
 
-
-![png](teleportation_files/teleportation_3_3.png)
-
+<p style="color:blue;"><b>[INFO]</b> Wait for job to finish...</b>
 
 
 
@@ -74,10 +77,34 @@ See [examples/teleportation.md](../examples/teleportation.md).
 
 
 
+
+![png](teleportation_files/teleportation_3_5.png)
+
+
+
+
 ```python
 '''Example with IBM cloud backend (queue)'''
 ...
 ```
+
+
+<h3>Quantumcircuit for testing teleportation protocol</h3>
+
+
+
+
+![png](teleportation_files/teleportation_4_1.png)
+
+
+
+
+<b>NOTE:</b>
+<ul>
+    <li>backend: <b>ibm_oslo</b></li>
+    <li>job id: <b>*****</b></li>
+</ul>
+
 
 
 ```python
