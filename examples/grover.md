@@ -43,14 +43,14 @@ basic_action_display_circuit(problem=problem, q_min=0.1, prob_min=0.01);
 ```
 
 
-Load SAT Problem from <b><code>data/simple_v3_c2.txt</code></b>:
+Load SAT Problem from <b><code>data/*****.txt</code></b>:
 
 
 
-$                        \begin{array}{cl}
-                        &(x_{0}\,\vee\,\neg x_{2})\\
+$\begin{array}{cl}
+&(x_{0}\,\vee\,\neg x_{2})\\
 \wedge &(\neg x_{0}\,\vee\,x_{1}\,\vee\,x_{2})\\
-                        \end{array}$
+\end{array}$
 
 
 
