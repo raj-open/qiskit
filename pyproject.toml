@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "qiskit-project"
 version = "0.0.0"
@@ -111,6 +115,10 @@ dependencies = [
     # web + API
     # --------------------------------
     "qiskit[visualization]>=2.0.0",
+    "qiskit-ibm-provider>=0.11.0",
+    # NOTE: Does not work, needs to be performed outside pyproject.toml via a direct cli-command
+    # "qiskit-textbook>=0.1.0",
+    # "git+https://github.com/qiskit-community/qiskit-textbook.git#subdirectory=qiskit-textbook-src",
     "openqasm3>=1.0.1",
     "jupyter>=1.1.1",
     "jupytext>=1.17.0",

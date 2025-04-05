@@ -162,7 +162,13 @@ build-requirements-dependencies:
         --compile-bytecode \
         --no-python-downloads \
         --requirements pyproject.toml
+    @# NOTE: this has to be performed separately as in pyproject.toml under uv there is no acceptable syntax:
     @{{PYVENV_ON}} && {{PYVENV}} -m uv sync
+    @{{PYVENV_ON}} && {{PYVENV}} -m uv pip install \
+        --strict \
+        --compile-bytecode \
+        --no-python-downloads \
+        git+https://github.com/qiskit-community/qiskit-textbook.git#subdirectory=qiskit-textbook-src
 
 build-models:
     @echo "SUBTASK: build data models from schemata."

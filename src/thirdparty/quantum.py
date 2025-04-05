@@ -9,7 +9,7 @@ from enum import Enum
 
 import numpy as np
 import qiskit as qk
-from qiskit import IBMQ
+from qiskit_ibm_provider import IBMQ
 
 # from qiskit import Aer as QkBackendAer;
 from qiskit import ClassicalRegister
