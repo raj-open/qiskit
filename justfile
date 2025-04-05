@@ -368,9 +368,9 @@ prettify-dry:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 clean log_path="logs":
+    @- just clean-notebooks
     @just clean-venv
     @just clean-basic "{{log_path}}"
-    @just clean-notebooks
 
 clean-basic log_path="logs":
     @echo "All system artefacts will be force removed."
