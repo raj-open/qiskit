@@ -1,0 +1,63 @@
+openapi: 3.0.3
+
+info:
+  version: 0.0.0
+  title: Schemata for basic model
+
+servers:
+  - url: "https://github.com/raj-open"
+
+paths: {}
+
+components:
+  schemas:
+    # ----------------------------------------------------------------
+    # DEFINITIONS
+    # ----------------------------------------------------------------
+
+    GeneralConfig:
+      description: |-
+        Structure of main config file.
+        TODO: Define this.
+
+      type: object
+      additionalProperties: false
+
+    # ----------------------------------------------------------------
+    # ENUMS
+    # ----------------------------------------------------------------
+
+    EnumQiskitBackend:
+      description: |-
+        Enumerations of possible options for qiskit backend.
+        cf. <https://quantum-computing.ibm.com/lab/docs/iql/manage/simulator>
+      type: enum
+      x-enum-descriptions:
+        - 'Mocked Backed using Aer'
+        - 'Mocked Backed using QASM'
+        - 'Mocked Backed using IBMQ QASM'
+        - 'Mocked Backed using Unitary Simulator'
+        - 'Stabiliser - Clifford'
+        - 'Stabiliser - Extended Clifford (e.g., Clifford+T)'
+        - 'Schrödinger wavefunction'
+        - 'Matrix Product State'
+
+      x-enum-varnames:
+        - AER
+        - QASM
+        - IBM_QASM
+        - UNITARY
+        - CLIFFORD
+        - CLIFFORD_EXTENDED
+        - STATE_VECTOR
+        - STATE_MATRIXPRODUCT
+
+      enum:
+        - aer_simulator
+        - qasm_simulator
+        - ibmq_qasm_simulator
+        - unitary_simulator
+        - simulator_stabilizer
+        - simulator_extended_stabilizer
+        - simulator_statevector
+        - simulator_mps
