@@ -5,31 +5,31 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from src.thirdparty.code import *;
-from src.thirdparty.io import *;
-from src.thirdparty.types import *;
-
-from src.parsers.dimacs import *;
-from src.models.boolsat import *;
+from src.models.boolsat import *
+from src.parsers.dimacs import *
+from src.thirdparty.code import *
+from src.thirdparty.io import *
+from src.thirdparty.types import *
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'read_problem_sat_from_dimacs_cnf',
-];
+    "read_problem_sat_from_dimacs_cnf",
+]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # METHOD - read SAT problem from dimacs
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 def read_problem_sat_from_dimacs_cnf(
     name: str,
     path: Optional[str] = None,
     problem_text: Optional[str] = None,
 ) -> ProblemSAT:
-    '''
+    """
     NOTE: A cnf file encodes 0th order logic propositions in conjunctive normal form
     (CNF - conjunction of disjunctions of literals).
 
@@ -63,11 +63,11 @@ def read_problem_sat_from_dimacs_cnf(
             ```
 
     cf. <https://people.sc.fsu.edu/~jburkardt/data/cnf/cnf.html>
-    '''
+    """
     if path is not None:
-        problem_text = read_file(path=path);
-    assert problem_text is not None, 'Either a path to a text file or text must be provided!';
-    clauses = parse_text_as_dimacs(problem_text);
-    problem = ProblemSAT(name=name, clauses=clauses);
-    problem.setup();
-    return problem;
+        problem_text = read_file(path=path)
+    assert problem_text is not None, "Either a path to a text file or text must be provided!"
+    clauses = parse_text_as_dimacs(problem_text)
+    problem = ProblemSAT(name=name, clauses=clauses)
+    problem.setup()
+    return problem

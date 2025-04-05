@@ -5,16 +5,16 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from lark import Lark;
-from lark import Tree as LarkTree;
-from lark.indenter import Indenter as LarkIndenter;
+from lark import Lark
+from lark import Tree as LarkTree
+from lark.indenter import Indenter as LarkIndenter
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'Lark',
-    'LarkIndenter',
-    'LarkTree',
-];
+    "Lark",
+    "LarkIndenter",
+    "LarkTree",
+]

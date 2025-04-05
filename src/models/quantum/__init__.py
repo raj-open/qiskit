@@ -5,13 +5,13 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from src.models.quantum.states import *;
+from src.models.quantum.states import *
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'get_ouput_state_of_circuit',
-    'plot_ouput_state_of_circuit',
-];
+    "get_ouput_state_of_circuit",
+    "plot_ouput_state_of_circuit",
+]

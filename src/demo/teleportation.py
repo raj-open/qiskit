@@ -5,33 +5,33 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from src.thirdparty.quantum import *;
-from src.thirdparty.render import *;
-from src.thirdparty.types import *;
-
-from src.api import *;
-from src.algorithms import *;
+from src.algorithms import *
+from src.api import *
+from src.thirdparty.quantum import *
+from src.thirdparty.render import *
+from src.thirdparty.types import *
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 __all__ = [
-    'action_display_statistics',
-    'action_prepare_circuit_and_job',
-    'basic_action_display_circuit',
-];
+    "action_display_statistics",
+    "action_prepare_circuit_and_job",
+    "basic_action_display_circuit",
+]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MAIN ACTIONS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 def action_prepare_circuit_and_job(
     option: BACKEND | BACKEND_SIMULATOR,
     num_shots: int,
     num_samples: int,
 ):
-    '''
+    """
     Displays the entire quantum teleoportation protocol for test purposes:
 
     - initialisation of an entangle state between Alice and Bob
@@ -43,7 +43,8 @@ def action_prepare_circuit_and_job(
     - `backend` - an enum value to indicate which backend to use.
     - `num_shots` - number of shots of the job prepared for each random state.
     - `num_samples` - number of 'random' states to teleport
-    '''
+    """
+
     @connect_to_backend(option=option, n=3)
     def action(
         option: BACKEND | BACKEND_SIMULATOR,
@@ -52,45 +53,47 @@ def action_prepare_circuit_and_job(
         num_samples: int,
     ):
         # create circuit:
-        display(HTML('<h3>Quantumcircuit for testing teleportation protocol</h3>'));
-        circuit_scheme, params = teleportation_protocol_test();
+        display(HTML("<h3>Quantumcircuit for testing teleportation protocol</h3>"))
+        circuit_scheme, params = teleportation_protocol_test()
 
         # display circuit:
-        display(circuit_scheme.draw(
-            output        = DRAW_MODE.COLOUR.value,
-            cregbundle    = False,
-            initial_state = True,
-        ));
+        display(
+            circuit_scheme.draw(
+                output=DRAW_MODE.COLOUR.value,
+                cregbundle=False,
+                initial_state=True,
+            )
+        )
 
         # instantiate schema with random values and transpile:
         circuits = [
-            circuit_scheme.bind_parameters({
-                param_i: value_i
-                for param_i, value_i in zip(params, values)
-            })
+            circuit_scheme.bind_parameters(
+                {param_i: value_i for param_i, value_i in zip(params, values)}
+            )
             for values in random_unitary_parameters(n=num_samples)
-        ];
-        circuits = [ qk_transpile(circuit, backend) for circuit in circuits ];
+        ]
+        circuits = [qk_transpile(circuit, backend) for circuit in circuits]
         for circuit in circuits:
-            circuit.name = circuit_scheme.name;
+            circuit.name = circuit_scheme.name
 
         # create job:
         # %qiskit_job_watcher
         job: IBMQJob = qk_execute(
-            experiments = circuits,
-            backend = backend,
-            shots = num_shots,
-            optimization_level = 3,
+            experiments=circuits,
+            backend=backend,
+            shots=num_shots,
+            optimization_level=3,
             # FIXME: currently these two arguments are ignored by the qiskit package:
             # name = 'teleportation-protocoll-with-random-states',
             # tags = ['algorithm=teleportation', 'state=random', f'shots={num_shots}', f'samples={num_samples}'],
-        );
-        display_latest_info(backend=backend, job=job);
-        latest_state.set_job(job, queue=isinstance(option, BACKEND));
-        return;
+        )
+        display_latest_info(backend=backend, job=job)
+        latest_state.set_job(job, queue=isinstance(option, BACKEND))
+        return
 
-    action(num_shots=num_shots, num_samples=num_samples);
-    return;
+    action(num_shots=num_shots, num_samples=num_samples)
+    return
+
 
 def action_display_statistics(
     queue: bool = False,
@@ -98,7 +101,7 @@ def action_display_statistics(
     backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
     as_widget: bool = False,
 ):
-    '''
+    """
     Displays statistics of the job results of running the teleportation protocol.
 
     @inputs
@@ -107,39 +110,52 @@ def action_display_statistics(
     - `backend_option` - <enum | None> if set, will be used in combination with `job_id` to retrieve job.
     - `as_widget` - <boolean> if `true` displays a widget interface so that use can select backend + job before carrying out action.
         If `false` (default), attempts to retrieve job and carry out action if job exists and is done.
-    '''
+    """
+
     @recover_job(
-        queue = queue,
-        ensure_job_done = True,
-        job_id = job_id,
-        backend_option = backend_option,
-        use_latest = True,
-        as_widget = as_widget,
+        queue=queue,
+        ensure_job_done=True,
+        job_id=job_id,
+        backend_option=backend_option,
+        use_latest=True,
+        as_widget=as_widget,
         # if working with the simulator, wait until the job is done:
-        wait = not queue,
+        wait=not queue,
     )
     def action(job: IBMQJob):
-        result = job.result();
-        N, _, [counts_alice, counts_bob] = get_counts(result, [0,1], [2]);
+        result = job.result()
+        N, _, [counts_alice, counts_bob] = get_counts(result, [0, 1], [2])
         if N > 0:
-            display(QkVisualisation.plot_distribution(counts_alice, title=f'Measurements of Alice\'s QBits (batch size: {N})'));
-            display(QkVisualisation.plot_distribution(counts_bob, title=f'Measurements of Bob\'s QBits (batch size: {N})'));
+            display(
+                QkVisualisation.plot_distribution(
+                    counts_alice, title=f"Measurements of Alice's QBits (batch size: {N})"
+                )
+            )
+            display(
+                QkVisualisation.plot_distribution(
+                    counts_bob, title=f"Measurements of Bob's QBits (batch size: {N})"
+                )
+            )
         else:
-            display(HTML('<p style="color:red;"><b>[WARNING]</b> No measurements were found!</p>'));
-        return;
+            display(
+                HTML('<p style="color:red;"><b>[WARNING]</b> No measurements were found!</p>')
+            )
+        return
 
-    action();
-    return;
+    action()
+    return
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # BASIC ACTIONS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
 def basic_action_display_circuit():
-    '''
+    """
     Displays the main part of the teleportation protocol.
-    '''
-    display(HTML('<h3>Quantumcircuit for Teleportation</h3>'));
-    circuit = teleportation_protocol(include_entanglement=False);
-    display(circuit.draw(output=DRAW_MODE.COLOUR.value, cregbundle=False, initial_state=False));
-    return;
+    """
+    display(HTML("<h3>Quantumcircuit for Teleportation</h3>"))
+    circuit = teleportation_protocol(include_entanglement=False)
+    display(circuit.draw(output=DRAW_MODE.COLOUR.value, cregbundle=False, initial_state=False))
+    return
