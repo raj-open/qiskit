@@ -1,98 +1,83 @@
-*
+/**
 !/.gitignore
+!/.gitattributes
 
-################################################################
-# DOCKER
-################################################################
+# ----------------------------------------------------------------
+# ROOT
+# ----------------------------------------------------------------
 
+!/README.md
+!/LICENCE
+!/justfile
+!/pyproject.toml
+!/*.lock
+!/.coveragerc
+!/.behaverc
 !/.dockerignore
 !/Dockerfile
 !/docker-compose.yaml
+!/.github
+!/.github/workflows
+!/.github/workflows/*.yaml
 
-################################################################
-# MAIN FOLDER
-################################################################
+# ----------------------------------------------------------------
+# PROJECT
+# ----------------------------------------------------------------
 
-!/justfile
-!/Makefile
-!/README.md
-!/CONTRIBUTING.md
-!/LICENSE
-!/.coveragerc
-!/pyproject.toml
-!/requirements*
-
-################################################################
-# PROJECT FILES
-################################################################
+!/dist
+!/dist/VERSION
 
 !/templates
 !/templates/template*
 
-!/src
-!/src/**/
-!/src/**/*.py
-!/src/**/*.yaml
-!/main.py
+!/docs
+!/docs/**/
+!/docs/**/*.md
+
+!/models
+!/models/common
+!/models/**/*.yaml
+
+!/assets
+!/assets/*.lark
 
 !/notebooks
 !/notebooks/*.ipynb
 !/notebooks/*.md
 
-!/assets
-!/assets/*.lark
-
-# NOTE: models are created as part of the build process:
-!/models
-!/models/*.yaml
-!/models/README.md
-
-!/docs
-!/docs/*/
-!/docs/*/Models/
-!/docs/**/*.md
+!/src
+!/src/**/
+!/src/**/*.py
+!/src/**/*.yaml
 
 !/tests
 !/tests/**/
 !/tests/**/*.py
-!/tests/resources/*.yaml
-!/tests/README.md
-
-!/dist
-!/dist/VERSION
+!/tests/**/resources/**/
+!/tests/**/resources/**/*.yaml
 
 !/examples
 !/examples/*_files/
 !/examples/*_files/*_*_*.png
-!/examples/*.md
-!/examples/*.html
-!/examples/*.md
+!/examples/**/*.md
+!/examples/**/*.html
+!/examples/**/*.md
 
-################################################################
-# AUXLIARY
-################################################################
+# ----------------------------------------------------------------
+# FORCE REMOVE
+# ----------------------------------------------------------------
 
-/logs
-/**/.env
+**/.session
+**/logs
+**/.vscode
+**/*.tmp
+**/.DS_Store
+**/__archive__*
+**/__pycache__*
+/build
 
-################################################################
-# TEMPLATES
-################################################################
+# ----------------------------------------------------------------
+# FORCE RETAIN
+# ----------------------------------------------------------------
 
-!/templates
-!/templates/.env
-
-################################################################
-# ARTEFACTS
-################################################################
-
-/**/__pycache__
-/**/.pytest_cache
-/**/.DS_Store
-/**/__archive__*
-
-################################################################
-# Git Keep
-################################################################
-
-!/**/.gitkeep
+!**/.gitkeep

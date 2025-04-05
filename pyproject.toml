@@ -1,45 +1,280 @@
 [project]
-name = "qiskit"
-version = "X.Y.Z"
-description = ""
-authors = [ "github.com/raj-open" ]
-maintainers = [ "github.com/raj-open" ]
-license = "MIT"
-readme = "README.md"
-python = "^3.10"
-homepage = "https://github.com/raj-open/qiskit"
-repository = "https://github.com/raj-open/qiskit"
-documentation = "https://github.com/raj-open/qiskit/src/README.md"
+name = "qiskit-project"
+version = "0.0.0"
+description = 'contains source code for quantum computing algorithms together with demonstrations in the form of jupyter notebook'
+authors = [
+    {name="raj-open", email="raj-open@users.noreply.github.com"},
+]
+urls = {homepage = 'https://github.com/raj-open/qiskit'}
+maintainers = [
+    {name="raj-open", email="raj-open@users.noreply.github.com"},
+]
+license = 'LICENCE'
+readme = 'README.md'
 keywords = [
     "python",
-    "qiskit",
+    "quantum",
     "quantum computing",
+    "qiskit",
 ]
 # cf. https://pypi.org/classifiers
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
-    "Intended Audience :: Developers",
-    "Operating System :: Unix",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.13",
+]
+requires-python = ">=3.13,<3.14"
+
+dependencies = [
+    # --------------------------------
+    # compiler
+    # --------------------------------
+    "pip>=25.0.1",
+    # "wheel>=0.46.0",
+    # --------------------------------
+    # code - general
+    # --------------------------------
+    "importlib>=1.0.4",
+    "authlib>=1.5.2",
+    "passlib>=1.7.4",
+    "psutil>=7.0.0",
+    "pathlib>=1.0.1",
+    "pathspec>=0.12.1",
+    "codetiming>=1.4.0",
+    "safetywrap>=1.5.0",
+    # --------------------------------
+    # code - execution
+    # --------------------------------
+    "anyio>=4.9.0",
+    "aiohttp>=3.11.16",
+    "asyncio>=3.4.3",
+    "lazy-load>=0.8.3",
+    "ipython>=9.0.2",
+    # --------------------------------
+    # web
+    # --------------------------------
+    "certifi>=2025.1.31",
+    # --------------------------------
+    # config
+    # --------------------------------
+    "toml>=0.10.2",
+    "argparse>=1.4.0",
+    "python-dotenv>=1.1.0",
+    "jsonschema>=4.23.0",
+    "pyyaml>=6.0.2",
+    "lxml>=5.3.1",
+    # --------------------------------
+    # models
+    # --------------------------------
+    "pydantic>=2.11.2",
+    "pydantic-yaml>=1.4.0",
+    # "sqlalchemy>=2.0.40",
+    # "pyodbc>=5.2.0",
+    # "django>=5.1.3",
+    # "pymongo>=4.10.1", # needed for deserialisation of datetime
+    # --------------------------------
+    # maths + data
+    # --------------------------------
+    "numpy>=2.2.4",
+    # "nptyping>=2.5.0",
+    "pandas>=2.2.3",
+    "polars>=1.26.0",
+    "pyarrow>=19.0.1",
+    "openpyxl>=3.1.5",
+    "fastexcel>=0.13.0",
+    "pint>=0.24.4",
+    "pylatexenc>=2.10",
+    # --------------------------------
+    # rendering
+    # --------------------------------
+    "tabulate>=0.9.0",
+    "matplotlib>=3.10.1",
+    "plotly>=6.0.1",
+    "seaborn>=0.13.2", # needed with qiskit for rendering"
+    # --------------------------------
+    # miscellaneous
+    # --------------------------------
+    "croniter>=6.0.0",
+    "datetime>=5.5",
+    "python-dateutil>=2.9.0.post0",
+    "tzdata>=2025.2", # NOTE: necessary to ensure that OS has access to timezones, otherwise polars throws error
+    "pytz>=2025.2",
+    "lorem-text>=2.1",
+    "flatDict>=4.0.1",
+    "lark>=1.2.2",
+    "lark-parser>=0.12.0",
+    "regex>=2024.11.6",
+    # --------------------------------
+    # web + API
+    # --------------------------------
+    "qiskit[visualization]>=2.0.0",
+    "openqasm3>=1.0.1",
+    "jupyter>=1.1.1",
+    "jupytext>=1.17.0",
+    "jupyterthemes>=0.20.0",
+    "widgetsnbextension>=4.0.13",
+    "ipywidgets>=8.1.5",
+    "nbconvert[webpdf,qtpdf]>=7.16.6",
+    # "fastapi[all]>=0.115.12",
+    # "fastapi-offline>=1.7.3",
+    # "jinja2>3.1.5",
+    # "uvicorn>=0.34.0",
+    "requests>=2.32.3", # NOTE: recommended over urllib(3).request
 ]
 
+[dependency-groups]
+dev = [
+    # --------------------------------
+    # debugging
+    # --------------------------------
+    # "memory-profiler>=0.61.0",
+    # --------------------------------
+    # testing
+    # --------------------------------
+    "pytest>=8.3.5",
+    "coverage[toml]>=7.8.0",
+    "pytest-cov>=6.1.0",
+    "pytest-order>=1.3.0",
+    "testfixtures>=8.3.0",
+    "behave>=1.2.6",
+    "behave-webdriver>=0.3.1",
+    # --------------------------------
+    # model
+    # --------------------------------
+    "datamodel-code-generator>=0.28,<0.28.5", # in v0.28.5 the flag --capitalise-enum-members does not work
+    "openapi-generator-cli>=7.12.0",
+    "openapi-generator>=1.0.6",
+    # --------------------------------
+    # data, mocks
+    # --------------------------------
+    # "faker>=25.5.0",
+    "mimesis[factory]>=18.0.0",
+    # --------------------------------
+    # hooks and linting
+    # --------------------------------
+    # "pre-commit>=4.1.0",
+    "ruff>=0.11.4",
+    "uv>=0.6.12",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+# NOTE: depends on name of project!
+qiskit-project = [
+    'models/*.yaml',
+]
+
+[tool.setuptools.packages.find]
+where = [ 'src' ]
+# NOTE: depends on name of project!
+include = [ 'qiskit-project*' ]
+namespaces = true
+
+[tool.uv]
+managed = true
+package = false
+
+# cf. https://docs.astral.sh/ruff/configuration
+# and https://docs.astral.sh/ruff/settings
+[tool.ruff]
+include = ["pyproject.toml", "src/**/*.py", "tests/**/*.py", "*.ipynb", "*.pyi"]
+exclude = ["src/models/generated/**/*.py"]
+respect-gitignore = true
+line-length = 96
+indent-width = 4
+target-version = "py313"
+fix = true
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+select = ["D", "E", "F", "I", "RUF"]
+ignore = [
+    "ARG001", # allow unused arguments
+    "BLE001", # allow blind exceptions
+    "D100", # do not require docstring for module
+    "D101", # do not require docstring for module
+    "D102", # do not reuire docstring
+    "D103", # do not reuire docstring
+    "D104", # do not reuire docstring
+    "D105", # do not reuire docstring
+    "D106", # do not reuire docstring
+    "D107", # do not reuire docstring
+    "D200", # prevent docstrings from being forced to fit one-line
+    "D203",
+    "D205", # do not require blank line between summary and description in docstring
+    "D211",
+    "D212", # prevent first newline from being removed in docstrings
+    "D400", # prevent grammatical constraints (full stop)
+    "D401", # prevent grammatical constraints (imperative mood)
+    "D403", # prevent case changes in Docstrings.
+    "D404", # allow freedom of expression in docstrings
+    "D415", # do not require punctuation in docstring
+    "EXE001", # allow unused shebangs
+    "E402", # allow module level import to be not at top of file
+    "E501", # ignore "line too long" errors in case "fmt: skip" pragma is used
+    # "E703",
+    "E712", # turn off, as sometimes variables have mixed boolean + string/null types
+    "E731", # allow lambda expressions
+    "F403", # disable as conflicts with *-imports
+    "F405", # disable as conflicts with *-imports
+    # "F541", # allow f-string without placeholders
+    "F841", # unused variables - need to switch off e.g. for decorators
+    "F811", # allow redefinition of methods
+    # "I100", # disable imports from same library being forced into a single ,-separated statement
+    # "I102", # disable multiple import formatting
+    "RUF018", # allow assignment expressions in asserts
+    "S110", # allow try-except-pass
+    "TID252", # allow relative imports from parent modules
+    "UP009", # allow utf-8 shebangs
+]
+
+[tool.ruff.lint.isort]
+relative-imports-order = "furthest-to-closest"
+no-sections = false
+from-first = false
+combine-as-imports = false
+case-sensitive = true
+force-single-line = true
+# known-local-folder = ["src", "tests"]
+known-first-party = ["src", "tests"]
+forced-separate = [
+    "tests",
+    "src._core",
+    "src.setup",
+    "src.models",
+    "src",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false # false = allow trailing comma
+docstring-code-format = false
+docstring-code-line-length = "dynamic"
+
 [tool.pytest.ini_options]
-minversion = "7.1.1"
+minversion = "8.3.5"
 testpaths = [
     "tests",
 ]
 python_files = [
-    "**/tests_*.py",
+    "**/tests_*.py", # <- pattern for file names to be tested
 ]
 asyncio_mode = "auto"
 filterwarnings = [
     "error",
     "ignore::UserWarning",
     "ignore::DeprecationWarning",
+]
+markers = [
+    "azure: tests that require azure to be started in order to run",
+    "remote: tests that require credentials and for connection to remote services in order to run",
 ]
 # NOTE: appends (not prepends) flags:
 addopts = [
@@ -48,12 +283,15 @@ addopts = [
     "--cache-clear",
     "--verbose",
     "--maxfail=1",
-    "-k test_",
+    "-k test_", # <- pattern for methods to count as tests
+    "-k tests_", # <- pattern for methods to count as tests
     # NOTE: will be ignored, if --cov not used (e.g. integration tests):
     "--no-cov-on-fail",
     "--cov-report=term",
     "--cov-config=.coveragerc",
     # NOTE: for development purposes only:
     # "-s", # verbose print/err capturing disabled
-    # "--capture=tee-sys", # verbose print/err capturing enabled
+    "--capture=tee-sys", # verbose print/err capturing enabled
+    "-m",
+    "not (azure or remote)",
 ]
