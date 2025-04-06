@@ -47,19 +47,20 @@ def svd(u: np.ndarray) -> np.ndarray:
     """
     B1 = [V[0, :].flatten(), V[1, :].flatten()]
     B2 = [U[:, 0].flatten(), U[:, 1].flatten()]
-    l = [s[0], s[1]]
+    eig = [s[0], s[1]]
+
     # err = np.linalg(u - l[0]*ket_ket(B1[0], B2[0]) + l[1]*ket_ket(B1[1], B2[1]));
-    return B1, B2, l
+    return B1, B2, eig
 
 
 def concurrence_of_vector(u: np.ndarray) -> float:
-    _, _, l = svd(u)
-    return 2 * l[0] * l[1]
+    _, _, eig = svd(u)
+    return 2 * eig[0] * eig[1]
 
 
 def entropy_of_vector(u: np.ndarray) -> float:
-    _, _, l = svd(u)
-    return h(l[0]) + h(l[1])
+    _, _, eig = svd(u)
+    return h(eig[0]) + h(eig[1])
 
 
 def entropy(rho: np.ndarray) -> float:
@@ -74,8 +75,16 @@ def entropy(rho: np.ndarray) -> float:
 
 
 def h(t: float) -> float:
+    """
+    The 'entropy' function
+    ```
+    h(t) = -t·log(t)
+    ```
+    where log is computed in base 2
+    """
     if t <= 0:
         return 0
+
     return -t * np.log2(t)
 
 

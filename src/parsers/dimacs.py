@@ -46,8 +46,9 @@ def parse_text_as_dimacs(text: str) -> TYPE_CNF:
         u = prune_tree(u, recursive=True)
         u = collapse_tree(u, recursive=True)
         return list(parse_problem(u))
-    except:
-        raise Exception(f"Could not parse text with \x1b[1m{_GRAMMAR_NAME}\x1b[0m.")
+
+    except Exception as err:
+        raise Exception(f"could not parse text with \x1b[1m{_GRAMMAR_NAME}\x1b[0m - {err}")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,19 +71,24 @@ def parse_problem(
         case "start":
             for child in children:
                 yield from parse_problem(child)
+
         case "comments" | "comment":
             return
+
         case "instruction":
             # NOTE: the instructions are superfluous
             return
+
         case "clauses":
             for child in children:
                 yield from parse_problem(child)
+
         case "clause":
             clause = [parse_literal(child) for child in children]
             yield clause
+
         case _:
-            raise Exception("Could not parse expression!")
+            raise Exception("could not parse expression!")
     return
 
 
@@ -91,12 +97,16 @@ def parse_literal(u: LarkTree) -> TYPE_LITERAL:
         children = sub_expressions(u)
         # NOTE: indexes are 1-based in text file ---> replace by 0-based
         index = int(lexed_to_string(children[0])) - 1
-    except:
-        raise Exception("Could not read index of literal!")
+
+    except Exception as err:
+        raise Exception(f"could not read index of literal - {err}")
+
     match u.data:
         case "positive_literal":
             return (1, index)
+
         case "negative_literal":
             return (0, index)
+
         case _:
-            raise Exception("Unexpected literal!")
+            raise Exception("unexpected literal")

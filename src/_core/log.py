@@ -5,7 +5,7 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from src.core.calls import *
+from src._core.calls import *
 from src.thirdparty.code import *
 from src.thirdparty.io import *
 from src.thirdparty.log import *
@@ -131,42 +131,50 @@ def log_dev(*messages: Any):  # pragma: no cover
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-def prompt_user_input(message: str, expectedformat: Callable) -> Optional[str]:
+def prompt_user_input(message: str, expectedformat: Callable) -> str | None:
     answer = None
     while True:
         try:
             answer = input(f"{message}: ")
+
         ## Capture Meta+C:
         except KeyboardInterrupt:
             print("")
             return None
+
         ## Capture Meta+D:
         except EOFError:
             print("")
             return None
-        except:
+
+        except Exception as _:
             continue
+
         if expectedformat(answer):
             break
     return answer
 
 
-def prompt_secure_user_input(message: str, expectedformat: Callable) -> Optional[str]:
+def prompt_secure_user_input(message: str, expectedformat: Callable) -> str | None:
     answer = None
     while True:
         try:
             ## TODO: zeige **** ohne Zeilenumbruch an.
             answer = getpass(f"{message}: ", stream=None)
+
         ## Capture Meta+C:
         except KeyboardInterrupt:
             print("")
             return None
+
         ## Capture Meta+D:
         except EOFError:
             print("")
             return None
-        except:
+
+        except Exception as _:
             continue
+
         if expectedformat(answer):
             break
     return answer

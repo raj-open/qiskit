@@ -75,10 +75,9 @@ def action_prepare_circuit_and_job(
 
         # run job and obtain results:
         # %qiskit_job_watcher
-        job = qk_execute(
-            experiments=circuit,
-            backend=backend,
-            shots=num_shots,
+        job: IBMJob = backend.run(
+            circuit,
+            num_shots=num_shots,
             optimization_level=3,
         )
         display_latest_info(backend=backend, job=job)
@@ -91,8 +90,8 @@ def action_prepare_circuit_and_job(
 
 def action_display_statistics(
     queue: bool = False,
-    job_id: Optional[str] = None,
-    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+    job_id: str | None = None,
+    backend_option: BACKEND | BACKEND_SIMULATOR | None = None,
     as_widget: bool = False,
 ):
     """
@@ -116,7 +115,7 @@ def action_display_statistics(
         # if working with the simulator, wait until the job is done:
         wait=not queue,
     )
-    def action(job: IBMQJob):
+    def action(job: IBMJob):
         result = job.result()
         N, counts, [counts_0, counts_1] = get_counts(result, [0], [1], pad=True)
         if N > 0:

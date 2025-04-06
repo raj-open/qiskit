@@ -38,13 +38,13 @@ T = TypeVar("T")
 
 @dataclass
 class LatestBasic(Generic[T]):
-    backend: Optional[T] = field(default=None)
-    job: Optional[IBMQJob] = field(default=None)
+    backend: T | None = field(default=None)
+    job: IBMJob | None = field(default=None)
 
-    def set_backend(self, option: Optional[T]):
+    def set_backend(self, option: T | None):
         self.backend = option
 
-    def set_job(self, job: Optional[IBMQJob]):
+    def set_job(self, job: IBMJob | None):
         self.job = job
 
 
@@ -55,17 +55,17 @@ class Latest:
     )
     queue: LatestBasic[BACKEND] = field(default_factory=lambda: LatestBasic[BACKEND]())
 
-    def get_backend(self, queue: bool) -> Optional[BACKEND | BACKEND_SIMULATOR]:
+    def get_backend(self, queue: bool) -> BACKEND | BACKEND_SIMULATOR | None:
         if queue:
             return self.queue.backend
         return self.simulator.backend
 
-    def get_job(self, queue: bool) -> Optional[IBMQJob]:
+    def get_job(self, queue: bool) -> IBMJob | None:
         if queue:
             return self.queue.job
         return self.simulator.job
 
-    def set_backend(self, option: Optional[BACKEND | BACKEND_SIMULATOR], queue: bool):
+    def set_backend(self, option: BACKEND | BACKEND_SIMULATOR | None, queue: bool):
         if queue:
             self.queue.set_backend(option if isinstance(option, BACKEND) else None)
         else:
@@ -73,7 +73,7 @@ class Latest:
                 option if isinstance(option, BACKEND_SIMULATOR) else None
             )
 
-    def set_job(self, job: Optional[IBMQJob], queue: bool):
+    def set_job(self, job: IBMJob | None, queue: bool):
         if queue:
             self.queue.set_job(job)
         else:
@@ -85,7 +85,7 @@ class Latest:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-def latest_info(backend: QkBackend, job: IBMQJob) -> str:
+def latest_info(backend: QkBackend, job: IBMJob) -> str:
     return dedent(
         f"""
         \x1b[1mNOTE:\x1b[0m
@@ -95,7 +95,7 @@ def latest_info(backend: QkBackend, job: IBMQJob) -> str:
     )
 
 
-def display_latest_info(backend: QkBackend, job: IBMQJob):
+def display_latest_info(backend: QkBackend, job: IBMJob):
     display(
         HTML(
             dedent(

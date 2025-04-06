@@ -20,7 +20,11 @@ from src.thirdparty.types import *
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-__all__ = ["RecoverJobWidget", "recover_job", "retrieve_job"]
+__all__ = [
+    "RecoverJobWidget",
+    "recover_job",
+    "retrieve_job",
+]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # CONSTANTS / LOCAL VARIABLES
@@ -39,9 +43,9 @@ ARGS = ParamSpec("ARGS")
 
 def retrieve_job(
     queue: bool,
-    job_id: Optional[str] = None,
-    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
-) -> Optional[IBMQJob]:
+    job_id: str | None = None,
+    backend_option: BACKEND | BACKEND_SIMULATOR | None = None,
+) -> IBMJob | None:
     """
     Retrieves an IBMQ job by id or else the latest job.
     If not possible, returns None.
@@ -56,26 +60,31 @@ def retrieve_job(
     """
     if not queue:
         return latest_state.get_job(queue)
+
     # Backend option must be from the BACKEND enum.
     if backend_option is None or not isinstance(backend_option, BACKEND):
         return None
+
     # Must provide a job id.
     if job_id is None:
         return None
+
     with CreateBackend(option=backend_option) as (_, backend):
         if backend is None:
             return None
+
         try:
             return backend.retrieve_job(job_id)
-        except:
+
+        except Exception as _:
             return None
 
 
 def retrieve_last_job_and_backend(
     queue: bool,
 ) -> tuple[
-    Optional[IBMQJob],
-    Optional[BACKEND | BACKEND_SIMULATOR],
+    IBMJob | None,
+    BACKEND | BACKEND_SIMULATOR | None,
 ]:
     """
     Retrieves latest job + backend which were internally noted.
@@ -92,14 +101,14 @@ def retrieve_last_job_and_backend(
 
 def recover_job(
     queue: bool,
-    job_id: Optional[str] = None,
-    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+    job_id: str | None = None,
+    backend_option: BACKEND | BACKEND_SIMULATOR | None = None,
     use_latest: bool = True,
     ensure_job_done: bool = True,
     wait: bool = False,
     as_widget: bool = False,
 ) -> Callable[
-    [Callable[Concatenate[IBMQJob, ARGS], T]],
+    [Callable[Concatenate[IBMJob, ARGS], T]],
     Callable[ARGS, None],
 ]:
     """
@@ -136,9 +145,10 @@ def recover_job(
     and which performs the action upon selection.
     """
     # optionally recover latest backend option + job:
-    last_job, last_backend = (
-        retrieve_last_job_and_backend(queue) if use_latest else (None, None)
-    )
+    last_job = last_backend = None
+    if use_latest:
+        last_job, last_backend = retrieve_last_job_and_backend(queue)
+
     backend_option = backend_option or last_backend
     if as_widget:
         # retrieve job or else use latest job:
@@ -150,9 +160,10 @@ def recover_job(
         widget.create()
         # create decorator for action via widget:
         dec = widget.observe(ensure_job_done)
+
     else:
 
-        def dec(action: Callable[Concatenate[IBMQJob, ARGS], T]) -> Callable[ARGS, None]:
+        def dec(action: Callable[Concatenate[IBMJob, ARGS], T], /) -> Callable[ARGS, None]:
             # modify action to obtain job first and then perform action:
             @wraps(action)
             def wrapped_action(**kwargs) -> None:
@@ -182,11 +193,11 @@ def recover_job(
                         Job either could not be recovered or is not done.
                         Details of recovered job:
                         <ul>
-                            <li>backend: <b>{aspects.backend}</b></li>
-                            <li>label:   <b>{aspects.label}</b></li>
-                            <li>id:      <b>{aspects.id}</b></li>
-                            <li>tag:     <b>{aspects.tags}</b></li>
-                            <li>status:  <b>{aspects.status}</b></li>
+                            <li>backend: <b>{aspects.backend or "-"}</b></li>
+                            <li>label:   <b>{aspects.label or "-"}</b></li>
+                            <li>id:      <b>{aspects.id or "-"}</b></li>
+                            <li>tag:     <b>{aspects.tags or "-"}</b></li>
+                            <li>status:  <b>{aspects.status or "-"}</b></li>
                         </ul>
                         Try again later or use <b><code>as_widget=True</code></b>.
                         """
@@ -206,9 +217,9 @@ def recover_job(
 
 
 class RecoverJobWidget:
-    option: Optional[BACKEND]
+    option: BACKEND | None
     queue: bool
-    job: Optional[IBMQJob]
+    job: IBMJob | None
 
     # widget components
     dropdown_backends: widgets.Dropdown
@@ -220,9 +231,9 @@ class RecoverJobWidget:
 
     def __init__(
         self,
-        option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+        option: BACKEND | BACKEND_SIMULATOR | None = None,
         queue: bool = False,
-        job: Optional[IBMQJob] = None,
+        job: IBMJob | None = None,
     ):
         assert queue or (job is not None), "If no queue used, then need to provide the job."
         self.option = option
@@ -239,21 +250,21 @@ class RecoverJobWidget:
     def observe(
         self, ensure_job_done: bool = False
     ) -> Callable[
-        [Callable[Concatenate[IBMQJob, ARGS], T]],
+        [Callable[Concatenate[IBMJob, ARGS], T]],
         Callable[ARGS, None],
     ]:
         """
         Decorator to connect a method to be performed/updated when the widget changes.
         """
 
-        def dec(action: Callable[Concatenate[IBMQJob, ARGS], T]) -> Callable[ARGS, None]:
+        def dec(action: Callable[Concatenate[IBMJob, ARGS], T], /) -> Callable[ARGS, None]:
             # modify action, so that it is triggered by events:
             @wraps(action)
             def wrapped_action(**kwargs) -> None:
                 # embed action into an event handle:
                 def handler(
-                    backend_option: Optional[BACKEND | BACKEND_SIMULATOR],
-                    job: Optional[IBMQJob],
+                    backend_option: BACKEND | BACKEND_SIMULATOR | None,
+                    job: IBMJob | None,
                     refresh: bool,
                 ) -> None:
                     self.show_loading()
@@ -298,19 +309,26 @@ class RecoverJobWidget:
             )
             try:
                 index_backend = enums.index(self.option)
-            except:
+
+            except Exception as _:
                 index_backend = 0
+
             index_jobs = 0 if self.job is None else 1
+
         else:
             enums = list(BACKEND_SIMULATOR)
             if isinstance(self.option, BACKEND_SIMULATOR):
                 enums = [self.option]
+
             options_backend = [(e.value, e) for e in enums]
             options_jobs = [(self.job.job_id(), self.job)]
+
             try:
                 index_backend = enums.index(self.option)
-            except:
+
+            except Exception as _:
                 index_backend = 0
+
             index_jobs = 0
 
         self.output = widgets.Output()
@@ -381,7 +399,7 @@ class RecoverJobWidget:
         self.hide_loading()
         return
 
-    def handler_update(self, change: Optional[dict] = None):
+    def handler_update(self, change: dict | None = None):
         """
         Handler to force update status of job (if selected).
         """
@@ -389,7 +407,7 @@ class RecoverJobWidget:
         self.handler_upd_job(None)
         return
 
-    def handler_upd_backend(self, change: Optional[dict] = None):
+    def handler_upd_backend(self, change: dict | None = None):
         """
         Handler to update list of jobs upon choice of backend.
         """
@@ -400,8 +418,10 @@ class RecoverJobWidget:
         option: BACKEND
         try:
             option: BACKEND = change["new"]
-        except:
+
+        except Exception as _:
             option = self.dropdown_backends.value
+
         self.show_loading()
         jobs = get_list_of_jobs(option=option)
         self.hide_loading()
@@ -412,22 +432,24 @@ class RecoverJobWidget:
             id = value.job_id()
             index = 1 + next(i for i, job in enumerate(jobs) if job.job_id() == id)
             self.dropdown_jobs.index = index
-        except:
-            pass
-        return
 
-    def handler_upd_job(self, change: Optional[dict] = None):
+        except Exception as _:
+            pass
+
+    def handler_upd_job(self, change: dict | None = None):
         """
         Handler to update status upon choice of job.
         """
         try:
-            job: Optional[IBMQJob] = change["new"]
-        except:
+            job: IBMJob | None = change["new"]
+
+        except Exception as _:
             job = self.dropdown_jobs.value
+
         self.text_status.value = self.text_status_value(job)
         return
 
-    def text_status_value(self, job: Optional[IBMQJob] = None) -> str:
+    def text_status_value(self, job: IBMJob | None = None) -> str:
         aspects = get_job_aspects(job=job)
         return f"""
         <div style='padding:0pt 10pt;'>
@@ -447,30 +469,33 @@ class RecoverJobWidget:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-def get_list_of_jobs(option: Optional[BACKEND | BACKEND_SIMULATOR]) -> list[IBMQJob]:
+def get_list_of_jobs(option: BACKEND | BACKEND_SIMULATOR | None) -> list[IBMJob]:
     if not isinstance(option, BACKEND):
         return []
+
     with CreateBackend(option=option) as (_, backend):
         if backend is None:
             return []
+
         try:
             return backend.jobs(limit=LIMIT_NUM_JOBS, descending=True)
-        except:
+
+        except Exception as _:
             return []
 
 
 @dataclass
 class JobAspects:
-    backend: str = field(default="—")
-    label: str = field(default="—")
-    id: str = field(default="—")
-    tags: str = field(default="—")
-    status: str = field(default="—")
+    backend: str | None
+    label: str | None
+    id: str | None
+    tags: str | None
+    status: str | None
 
 
 def get_job_aspects(
-    job: Optional[IBMQJob] = None,
-    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+    job: IBMJob | None = None,
+    backend_option: BACKEND | BACKEND_SIMULATOR | None = None,
 ) -> JobAspects:
     return JobAspects(
         backend=get_backend_name(backend_option),
@@ -481,49 +506,53 @@ def get_job_aspects(
     )
 
 
-def get_job_id(job: Optional[IBMQJob]) -> str:
+def get_job_id(job: IBMJob | None) -> str:
     try:
         return job.job_id()
-    except:
-        pass
-    return "—"
+
+    except Exception as _:
+        return None
 
 
-def get_job_name(job: Optional[IBMQJob]) -> str:
+def get_job_name(job: IBMJob | None) -> str:
     try:
         label = job.name() or ""
         if label != "":
             return label
-    except:
-        pass
-    return "—"
+
+    except Exception as _:
+        return None
 
 
-def get_job_tags(job: Optional[IBMQJob]) -> str:
+def get_job_tags(job: IBMJob | None) -> str:
     try:
         tags = job.tags()
         if len(tags) > 0:
             return "#" + ", #".join(tags)
-    except:
-        pass
-    return "—"
+
+        return "#"
+
+    except Exception as _:
+        return None
 
 
-def get_job_status(job: Optional[IBMQJob]) -> str:
+def get_job_status(job: IBMJob | None) -> str:
     try:
         return str(job.status().value)
-    except:
-        pass
-    return "—"
+
+    except Exception as _:
+        return None
 
 
-def get_backend_name(backend_option: Optional[BACKEND | BACKEND_SIMULATOR]):
+def get_backend_name(backend_option: BACKEND | BACKEND_SIMULATOR | None):
     if backend_option is not None:
         return str(backend_option.value)
-    return "—"
+
+    return None
 
 
-def is_job_done(job: Optional[IBMQJob], queue: bool) -> bool:
+def is_job_done(job: IBMJob | None, queue: bool) -> bool:
     if job is None:
         return False
+
     return job.done()

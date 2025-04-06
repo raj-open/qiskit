@@ -73,9 +73,10 @@ class ProblemSAT:
                 lines = []
                 for clause in self.clauses:
                     literals = [
-                        f"x[{index}]" if sgn == 1 else f"¬ x[{index}]" for sgn, index in clause
-                    ]
-                    D = r" ⋁ ".join(literals)
+                        f"x[{index}]" if sgn == 1 else f"¬ x[{index}]"
+                        for sgn, index in clause
+                    ]  # fmt: skip
+                    D = r" ⋁ ".join(literals)  # noqa
                     if len(literals) == 1:
                         lines.append(D)
                     elif len(literals) > 1:

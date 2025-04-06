@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from src.core.utils import *
+from src._core.utils import *
 from src.thirdparty.code import *
 from src.thirdparty.config import *
 from src.thirdparty.misc import *
@@ -49,7 +49,7 @@ class CallState(Generic[V]):
     """
 
     tag: Option[str] = field(default=None)
-    result: Optional[V] = field(default=None, repr=False)
+    result: V | None = field(default=None, repr=False)
     timestamp: str = field(default_factory=get_timestamp_string)
     has_action: bool = field(default=False)
     no_action: bool = field(default=False)
@@ -133,8 +133,8 @@ def GetState(result: Result[CallState, CallState]) -> CallState:
 
 
 def CallValue(
-    tag: str = None,
-    result: Optional[V] = None,
+    tag: str | None = None,
+    result: V | None = None,
     has_action: bool = True,
     no_action: bool = False,
     value: Option[tuple[bool, dict] | list[tuple[bool, dict]]] = Nothing(),
@@ -143,6 +143,7 @@ def CallValue(
     if isinstance(value, Some):
         x = value.unwrap() or []
         x = x if isinstance(x, list) else [x]
+
     X = CallState(
         tag=tag,
         result=result,
@@ -155,7 +156,7 @@ def CallValue(
 
 
 def CallError(
-    tag: str = None,
+    tag: str | None = None,
     has_action: bool = True,
     error: Option[str | BaseException | list[str | BaseException]] = Nothing(),
 ) -> CallState[V]:
@@ -289,7 +290,7 @@ def run_safely(tag: str | None = None, error_message: str | None = None):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-def to_async(executor: Optional[Any] = None):
+def to_async(executor: Any | None = None):
     """
     Creates a decorator for a synchronous function to perform it asynchronously.
     """

@@ -38,7 +38,7 @@ def tokenise_input(
     start_token: str,
     text: str,
 ) -> LarkTree:
-    """
+    r"""
     General method to token text via a grammar.
 
     @inputs
@@ -66,10 +66,9 @@ def tokenise_input(
         lexer = _lexer[(grammar_name, start_token)]
         tree = lexer.parse(text)
         return tree
-    except:
-        raise Exception(
-            f"Could not tokenise input as \x1b[1m{start_token}\x1b[0m in the grammar \x1b[1m{grammar_name}\x1b[0m!"
-        )
+
+    except Exception as err:
+        raise Exception(f"Could not tokenise input as \x1b[1m{start_token}\x1b[0m in the grammar \x1b[1m{grammar_name}\x1b[0m!")  # fmt: skip
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

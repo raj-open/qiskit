@@ -31,7 +31,7 @@ def get_ouput_state_of_circuit(
     option: BACKEND | BACKEND_SIMULATOR,
     backend: QkBackend,
     circuit: QuantumCircuit,
-    state: Optional[list[Literal[0] | Literal[1]]] = None,
+    state: list[Literal[0] | Literal[1]] | None = None,
 ) -> dict[str, complex]:
     """
     Extends the circuit, so that an initial state is forced
@@ -78,7 +78,8 @@ def get_ouput_state_of_circuit(
     # extract results as a vector
     try:
         vector = result.get_statevector(test_circuit)
-    except:
+
+    except Exception as _:
         # if this fails, then return empty state:
         return dict()
 
@@ -95,16 +96,16 @@ def get_ouput_state_of_circuit(
 
 def plot_ouput_state_of_circuit(
     circuit: QuantumCircuit,
-    state: Optional[list[Literal[0] | Literal[1]]] = None,
-    sort_by: Optional[Callable[[str, complex], Any]] = None,
-    filter_by: Optional[Callable[[str, complex], bool]] = None,
+    state: list[Literal[0] | Literal[1]] | None = None,
+    sort_by: Callable[[str, complex], Any] | None = None,
+    filter_by: Callable[[str, complex], bool] | None = None,
     # options for plots:
     mode: PLOT_VALUES = PLOT_VALUES.POWER,
     title: str = "State of output under input {state} \n ({part})",
     figsize: tuple[int, int] = (10, 4),
     dpi: int = 360,
     q_min: float = 0.05,
-) -> Optional[mpltFigure]:
+) -> mpltFigure | None:
     """
     Extends the circuit, so that an initial state is forced
     and captures the output state as a vector (without measuring it).

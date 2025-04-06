@@ -62,14 +62,21 @@ def action_prepare_circuit_and_job(
         )
 
         # create job:
+        # circuit_transpiled = qk_transpile(
+        #     circuit,
+        #     backend=backend,
+        #     num_shots=num_shots,
+        #     optimization_level=3,
+        #     output_name = 'deutsch-jozsa-algorithm',
+        #     # tags = ['algorithm=deutsch-jozsa', f'shots={num_shots}', f'bits={n}'],
+        # )
         # %qiskit_job_watcher
-        job = qk_execute(
-            experiments=circuit,
-            backend=backend,
-            shots=num_shots,
+        job: IBMJob = backend.run(
+            circuit,
+            num_shots=num_shots,
             optimization_level=3,
-            # FIXME: currently these two arguments are ignored by the qiskit package:
-            # name = 'deutsch-jozsa-algorithm',
+            output_name = 'deutsch-jozsa-algorithm',
+            # FIXME: currently ignored by the qiskit package:
             # tags = ['algorithm=deutsch-jozsa', f'shots={num_shots}', f'bits={n}'],
         )
         display_latest_info(backend=backend, job=job)
@@ -82,8 +89,8 @@ def action_prepare_circuit_and_job(
 
 def action_display_statistics(
     queue: bool = False,
-    job_id: Optional[str] = None,
-    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+    job_id: str | None = None,
+    backend_option: BACKEND | BACKEND_SIMULATOR | None = None,
     as_widget: bool = False,
 ):
     """
@@ -107,7 +114,7 @@ def action_display_statistics(
         # if working with the simulator, wait until the job is done:
         wait=not queue,
     )
-    def action(job: IBMQJob):
+    def action(job: IBMJob):
         result = job.result()
         N, counts, _ = get_counts(result, pad=True)
         if N > 0:

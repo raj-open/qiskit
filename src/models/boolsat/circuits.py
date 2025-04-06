@@ -42,12 +42,14 @@ def oracle_cnf(
 
     # encode clauses
     for k, vars, D in preprocessing_items:
-        circuit.append(D, vars + [n + k])
+        circuit.append(D, [*vars, n + k])
+
     # conjunction of disjunctions:
     circuit.mcx(list(range(n, n + Nc)), final)
+
     # undo preprocessing
     for k, vars, D in preprocessing_items[::-1]:
-        circuit.append(D, vars + [n + k])
+        circuit.append(D, [*vars, n + k])
     return circuit
 
 

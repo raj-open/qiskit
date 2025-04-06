@@ -32,37 +32,37 @@ def get_env_value(env: dict, key: str, default: Any = None) -> Any:  # pragma: n
     return env[key] if key in env else default
 
 
-def get_env_string(env: dict, key: str, default: Optional[str] = None) -> str:
+def get_env_string(env: dict, key: str, default: str | None = None) -> str:
     result = Result.of(lambda: str(env[key] or default))
     if default is None:
         return result.unwrap()
     return result.unwrap_or(default)
 
 
-def get_env_optional_string(env: dict, key: str) -> Optional[str]:
+def get_env_optional_string(env: dict, key: str) -> str | None:
     result = Result.of(lambda: str(env[key]))
     return result.unwrap_or(None)
 
 
-def get_env_int(env: dict, key: str, default: Optional[int] = None) -> int:
+def get_env_int(env: dict, key: str, default: int | None = None) -> int:
     result = Result.of(lambda: int(env[key] or default))
     if default is None:
         return result.unwrap()
     return result.unwrap_or(default)
 
 
-def get_env_optional_int(env: dict, key: str) -> Optional[int]:
+def get_env_optional_int(env: dict, key: str) -> int | None:
     result = Result.of(lambda: int(env[key]))
     return result.unwrap_or(None)
 
 
-def get_env_float(env: dict, key: str, default: Optional[float] = None) -> float:
+def get_env_float(env: dict, key: str, default: float | None = None) -> float:
     result = Result.of(lambda: float(env[key] or default))
     if default is None:
         return result.unwrap()
     return result.unwrap_or(default)
 
 
-def get_env_optional_float(env: dict, key: str) -> Optional[float]:
+def get_env_optional_float(env: dict, key: str) -> float | None:
     result = Result.of(lambda: float(env[key]))
     return result.unwrap_or(None)

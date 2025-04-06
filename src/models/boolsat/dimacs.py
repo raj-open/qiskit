@@ -26,10 +26,10 @@ __all__ = [
 
 def read_problem_sat_from_dimacs_cnf(
     name: str,
-    path: Optional[str] = None,
-    problem_text: Optional[str] = None,
+    path: str | None = None,
+    problem_text: str | None = None,
 ) -> ProblemSAT:
-    """
+    r"""
     NOTE: A cnf file encodes 0th order logic propositions in conjunctive normal form
     (CNF - conjunction of disjunctions of literals).
 
@@ -66,8 +66,11 @@ def read_problem_sat_from_dimacs_cnf(
     """
     if path is not None:
         problem_text = read_file(path=path)
+
     assert problem_text is not None, "Either a path to a text file or text must be provided!"
+
     clauses = parse_text_as_dimacs(problem_text)
     problem = ProblemSAT(name=name, clauses=clauses)
     problem.setup()
+
     return problem

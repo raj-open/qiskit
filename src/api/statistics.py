@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from src.core.utils import *
+from src._core.utils import *
 from src.thirdparty.code import *
 from src.thirdparty.config import *
 from src.thirdparty.misc import *

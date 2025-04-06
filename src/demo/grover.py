@@ -76,13 +76,12 @@ def action_prepare_circuit_and_job(
 
         # run job and obtain results:
         # %qiskit_job_watcher
-        job = qk_execute(
-            experiments=circuit,
-            backend=backend,
-            shots=num_shots,
+        job: IBMJob = backend.run(
+            circuit,
+            num_shots=num_shots,
             optimization_level=3,
-            # FIXME: currently these two arguments are ignored by the qiskit package:
-            # name = 'grovers-algorithm',
+            output_name = 'grovers-algorithm',
+            # FIXME: currently ignored by the qiskit package:
             # tags = ['algorithm=grover', f'shots={num_shots}', f'size={k}'],
         )
         display_latest_info(backend=backend, job=job)
@@ -97,8 +96,8 @@ def action_prepare_circuit_and_job(
 def action_display_statistics(
     problem: ProblemSAT,
     queue: bool = False,
-    job_id: Optional[str] = None,
-    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+    job_id: str | None = None,
+    backend_option: BACKEND | BACKEND_SIMULATOR | None = None,
     as_widget: bool = False,
 ):
     """
@@ -122,7 +121,7 @@ def action_display_statistics(
         # if working with the simulator, wait until the job is done:
         wait=not queue,
     )
-    def action(job: IBMQJob):
+    def action(job: IBMJob):
         n = problem.number_of_variables
         result = job.result()
         N, counts, [counts_inputs] = get_counts(result, list(range(n)), pad=True)
@@ -157,8 +156,8 @@ def action_display_statistics(
 
 
 def basic_action_prepare_problem(
-    path: Optional[str] = None,
-    text: Optional[str] = None,
+    path: str | None = None,
+    text: str | None = None,
     verbose: bool = False,
 ) -> ProblemSAT:
     """

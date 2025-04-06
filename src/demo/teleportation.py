@@ -78,13 +78,13 @@ def action_prepare_circuit_and_job(
 
         # create job:
         # %qiskit_job_watcher
-        job: IBMQJob = qk_execute(
-            experiments=circuits,
+        job: IBMJob = backend.run(
+            circuits,
             backend=backend,
-            shots=num_shots,
+            num_shots=num_shots,
             optimization_level=3,
             # FIXME: currently these two arguments are ignored by the qiskit package:
-            # name = 'teleportation-protocoll-with-random-states',
+            # name = 'teleportation-protocol-with-random-states',
             # tags = ['algorithm=teleportation', 'state=random', f'shots={num_shots}', f'samples={num_samples}'],
         )
         display_latest_info(backend=backend, job=job)
@@ -97,8 +97,8 @@ def action_prepare_circuit_and_job(
 
 def action_display_statistics(
     queue: bool = False,
-    job_id: Optional[str] = None,
-    backend_option: Optional[BACKEND | BACKEND_SIMULATOR] = None,
+    job_id: str | None = None,
+    backend_option: BACKEND | BACKEND_SIMULATOR | None = None,
     as_widget: bool = False,
 ):
     """
@@ -122,24 +122,29 @@ def action_display_statistics(
         # if working with the simulator, wait until the job is done:
         wait=not queue,
     )
-    def action(job: IBMQJob):
+    def action(job: IBMJob):
         result = job.result()
         N, _, [counts_alice, counts_bob] = get_counts(result, [0, 1], [2])
-        if N > 0:
-            display(
-                QkVisualisation.plot_distribution(
-                    counts_alice, title=f"Measurements of Alice's QBits (batch size: {N})"
+        match N:
+            case 0:
+                display(
+                    HTML(
+                        '<p style="color:red;"><b>[WARNING]</b> No measurements were found!</p>'
+                    )
                 )
-            )
-            display(
-                QkVisualisation.plot_distribution(
-                    counts_bob, title=f"Measurements of Bob's QBits (batch size: {N})"
+
+            case _:
+                display(
+                    QkVisualisation.plot_distribution(
+                        counts_alice, title=f"Measurements of Alice's QBits (batch size: {N})"
+                    )
                 )
-            )
-        else:
-            display(
-                HTML('<p style="color:red;"><b>[WARNING]</b> No measurements were found!</p>')
-            )
+                display(
+                    QkVisualisation.plot_distribution(
+                        counts_bob, title=f"Measurements of Bob's QBits (batch size: {N})"
+                    )
+                )
+
         return
 
     action()

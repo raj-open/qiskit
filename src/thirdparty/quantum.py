@@ -5,20 +5,13 @@
 # IMPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-from enum import Enum
+from enum import StrEnum
 
 import numpy as np
 import qiskit as qk
-from qiskit_ibm_provider import IBMQ
-
-# from qiskit import Aer as QkBackendAer;
 from qiskit import ClassicalRegister
 from qiskit import QuantumCircuit
 from qiskit import QuantumRegister
-from qiskit import assemble as qk_assemble
-from qiskit import execute as qk_execute
-
-# from qiskit.providers.ibmq import least_busy;
 from qiskit import quantum_info as qi
 from qiskit import transpile as qk_transpile
 from qiskit import visualization as QkVisualisation
@@ -26,25 +19,63 @@ from qiskit.circuit import Parameter as QkParameter
 from qiskit.circuit.gate import Gate as QkGate
 from qiskit.circuit.library import MCXGate as QkControlledX
 from qiskit.circuit.library import UnitaryGate as QkUnitaryGate
-from qiskit.providers import Backend as QkBackend
-from qiskit.providers import ibmq
-from qiskit.providers.ibmq import IBMQJob
-from qiskit.providers.ibmq.accountprovider import AccountProvider as QkAccountProvider
-from qiskit.providers.ibmq.ibmqbackend import IBMQBackend
-from qiskit.providers.ibmq.ibmqbackend import IBMQSimulator
+from qiskit.providers import BackendV2 as QkBackend
+from qiskit.providers.basic_provider import BasicProvider as QkBasicProvider
 from qiskit.quantum_info import Operator as QkOperator
 from qiskit.quantum_info import Statevector as QkStatevector
 from qiskit.quantum_info import random_unitary as qk_random_unitary
 from qiskit.result.result import Result as QkResult
-from qiskit.tools import jupyter as QkJupyter
+from qiskit_ibm_provider import least_busy as ibm_least_busy
+from qiskit_ibm_provider.accounts import Account as QkAccount
+from qiskit_ibm_provider.accounts import AccountManager as QkAccountManager
+from qiskit_ibm_provider.ibm_backend import IBMBackend
+from qiskit_ibm_provider.ibm_provider import IBMProvider
+from qiskit_ibm_provider.job.ibm_job import IBMJob
 from qiskit_textbook import problems as QkProblems
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# EXPORTS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+__all__ = [
+    "BACKEND",
+    "BACKEND_SIMULATOR",
+    "DRAW_MODE",
+    "ClassicalRegister",
+    "IBMBackend",
+    "IBMJob",
+    "IBMProvider",
+    "QkAccount",
+    "QkAccountManager",
+    "QkBackend",
+    "QkBasicProvider",
+    "QkControlledX",
+    "QkGate",
+    "QkOperator",
+    "QkParameter",
+    "QkProblems",
+    "QkResult",
+    "QkStatevector",
+    "QkUnitaryGate",
+    "QkVisualisation",
+    "QuantumCircuit",
+    "QuantumRegister",
+    "backend_from_name",
+    "convert_state_to_dictionary",
+    "ibm_least_busy",
+    "qi",
+    "qk",
+    "qk_random_unitary",
+    "qk_transpile",
+    "qk_unitary_gate_pair",
+]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MODIFICATIONS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-class BACKEND(Enum):
+class BACKEND(StrEnum):
     """
     cf. <https://quantum-computing.ibm.com/lab/docs>
     """
@@ -64,12 +95,14 @@ class BACKEND(Enum):
 def backend_from_name(name: str) -> BACKEND:
     try:
         e = next(e for e in BACKEND if e.value == name)
-    except:
+
+    except Exception as _:
         e = BACKEND.LEAST_BUSY
+
     return e
 
 
-class BACKEND_SIMULATOR(Enum):
+class BACKEND_SIMULATOR(StrEnum):
     """
     cf. <https://quantum-computing.ibm.com/lab/docs/iql/manage/simulator>
     """
@@ -90,7 +123,7 @@ class BACKEND_SIMULATOR(Enum):
     STATE_MATRIXPRODUCT = "simulator_mps"
 
 
-class DRAW_MODE(Enum):
+class DRAW_MODE(StrEnum):
     # images with color rendered purely in Python using matplotlib.
     COLOUR = "mpl"
     # ASCII art TextDrawing that can be printed in the console.
@@ -181,44 +214,3 @@ def convert_state_to_dictionary(
     if clean:
         state = {key: remove_machine_error(value) for key, value in state.items()}
     return state
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# EXPORTS
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-__all__ = [
-    "BACKEND",
-    "BACKEND_SIMULATOR",
-    "DRAW_MODE",
-    "IBMQ",
-    "ClassicalRegister",
-    "IBMQBackend",
-    "IBMQJob",
-    "IBMQSimulator",
-    "QkAccountProvider",
-    "QkBackend",
-    "QkBackendAer",
-    "QkControlledX",
-    "QkGate",
-    "QkJupyter",
-    "QkOperator",
-    "QkParameter",
-    "QkProblems",
-    "QkResult",
-    "QkStatevector",
-    "QkUnitaryGate",
-    "QkVisualisation",
-    "QuantumCircuit",
-    "QuantumRegister",
-    "backend_from_name",
-    "convert_state_to_dictionary",
-    "ibmq",
-    "qi",
-    "qk",
-    "qk_assemble",
-    "qk_execute",
-    "qk_random_unitary",
-    "qk_transpile",
-    "qk_unitary_gate_pair",
-]

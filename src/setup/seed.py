@@ -43,10 +43,12 @@ def set_rng_seed():
         seed = int(env.get("SEED") or "1234")
         np.random.seed(seed)
         random.seed(seed)
-    except:
+
+    except Exception as _:
         seed = 1234
         np.random.seed(seed)
         random.seed(seed)
+
     _SEED = seed
     return
 

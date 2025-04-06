@@ -152,5 +152,5 @@ def heuristic_optimal_rounds(
     prob = m / 2**n if prob <= 0 else prob
     u = np.sqrt(prob)
     theta = np.arcsin(u)
-    r = int(round(pi / (4 * theta) - 1 / 2))
+    r = round(pi / (4 * theta) - 1 / 2)
     return r

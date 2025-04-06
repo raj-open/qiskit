@@ -57,7 +57,7 @@ def prestrip(first: bool = True, last: bool = True, all: bool = False):
 
 @prestrip(all=False)
 def dedent(text: str) -> str:
-    """
+    r"""
     Remove any common leading whitespace from every line in `text`.
 
     This can be used to make triple-quoted strings line up with the left
