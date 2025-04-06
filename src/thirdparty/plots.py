@@ -17,7 +17,23 @@ from matplotlib.figure import Figure
 from matplotlib.patches import FancyArrowPatch
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# MODIFICATIONS
+# EXPORTS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+__all__ = [
+    "PLOTLY_COLOUR_SCHEME",
+    "Axes",
+    "FancyArrowPatch",
+    "Figure",
+    "mcolours",
+    "mplot",
+    "pgo",
+    "plotly",
+    "px",
+]
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -120,20 +136,3 @@ class PLOTLY_COLOUR_SCHEME(Enum):
     YLGNBU = "ylgnbu"
     YLORBR = "ylorbr"
     YLORRD = "ylorrd"
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# EXPORTS
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-__all__ = [
-    "PLOTLY_COLOUR_SCHEME",
-    "Axes",
-    "FancyArrowPatch",
-    "Figure",
-    "mcolours",
-    "mplot",
-    "pgo",
-    "plotly",
-    "px",
-]

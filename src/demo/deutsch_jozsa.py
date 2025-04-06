@@ -75,7 +75,7 @@ def action_prepare_circuit_and_job(
             circuit,
             num_shots=num_shots,
             optimization_level=3,
-            output_name = 'deutsch-jozsa-algorithm',
+            output_name="deutsch-jozsa-algorithm",
             # FIXME: currently ignored by the qiskit package:
             # tags = ['algorithm=deutsch-jozsa', f'shots={num_shots}', f'bits={n}'],
         )

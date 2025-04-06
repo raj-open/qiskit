@@ -14,10 +14,22 @@ from textwrap import dedent as textwrap_dedent
 from typing import Callable
 from typing import TypeVar
 
-import lorem
+from lorem_text import lorem
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# MODIFICATIONS
+# EXPORTS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+__all__ = [
+    "datetime",
+    "dedent",
+    "lorem",
+    "re",
+    "timedelta",
+]
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# METHODS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -71,16 +83,3 @@ def dedent(text: str) -> str:
     Entirely blank lines are normalised to a newline character.
     """
     return textwrap_dedent(text)
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# EXPORTS
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-__all__ = [
-    "datetime",
-    "dedent",
-    "lorem",
-    "re",
-    "timedelta",
-]

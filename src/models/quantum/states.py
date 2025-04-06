@@ -181,20 +181,25 @@ def plot_ouput_state_of_circuit(
         case PLOT_VALUES.ABSOLUTE:
             Y = np.abs(Y)
             part = "absolute values"
+
         case PLOT_VALUES.REAL:
             Y = Y.real
             part = "real parts"
+
         case PLOT_VALUES.IMAG:
             Y = Y.imag
             part = "imaginary parts"
+
         case PLOT_VALUES.LOG_POWER:
             Y = np.abs(Y) ** 2
             Y = -np.log(Y)
             part = "as log-probabilities"
+
         case PLOT_VALUES.ENTROPY:
             Y = np.abs(Y) ** 2
             Y = -Y * np.log2(Y + 1 * (Y == 0))
             part = "as entropy values"
+
         # case PLOT_VALUES.POWER:
         case _:
             Y = np.abs(Y) ** 2
@@ -204,7 +209,7 @@ def plot_ouput_state_of_circuit(
     fig, ax = mplt.subplots(1, 1, constrained_layout=True, figsize=figsize, dpi=dpi)
     state_str = "".join(map(str, state))
     title = title.format(
-        state=f"$\| {state_str} \\rangle$",
+        state=f"$\\bra{{{state_str}}}$",
         part=part,
     )
     mplt.title(label=title, fontdict={"size": 12})

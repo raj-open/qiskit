@@ -22,25 +22,6 @@ from matplotlib.figure import Figure as mpltFigure
 from qiskit.visualization import array_to_latex
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# MODIFICATIONS
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-class PRINT_MODE(Enum):
-    LATEX = "latex"
-    PLAIN = "plain"
-
-
-class PLOT_VALUES(Enum):
-    ABSOLUTE = "absolute"
-    POWER = "power"
-    LOG_POWER = "log-power"
-    ENTROPY = "entropy"
-    REAL = "real"
-    IMAG = "imag"
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # EXPORTS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -59,3 +40,21 @@ __all__ = [
     "mpltFigure",
     "widgets",
 ]
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MODIFICATIONS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+class PRINT_MODE(Enum):
+    LATEX = "latex"
+    PLAIN = "plain"
+
+
+class PLOT_VALUES(Enum):
+    ABSOLUTE = "absolute"
+    POWER = "power"
+    LOG_POWER = "log-power"
+    ENTROPY = "entropy"
+    REAL = "real"
+    IMAG = "imag"

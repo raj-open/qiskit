@@ -80,7 +80,7 @@ def action_prepare_circuit_and_job(
             circuit,
             num_shots=num_shots,
             optimization_level=3,
-            output_name = 'grovers-algorithm',
+            output_name="grovers-algorithm",
             # FIXME: currently ignored by the qiskit package:
             # tags = ['algorithm=grover', f'shots={num_shots}', f'size={k}'],
         )
