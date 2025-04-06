@@ -12,10 +12,11 @@ maintainers = [
 license = 'LICENCE'
 readme = 'README.md'
 keywords = [
-    "python",
     "quantum",
     "quantum computing",
     "qiskit",
+    "python",
+    "jupyter",
 ]
 # cf. https://pypi.org/classifiers
 classifiers = [
@@ -118,6 +119,7 @@ dependencies = [
     # "qiskit-textbook>=0.1.0",
     # "git+https://github.com/qiskit-community/qiskit-textbook.git#subdirectory=qiskit-textbook-src",
     "openqasm3>=1.0.1",
+    # "streamlit>=1.44.1",
     "jupyter>=1.1.1",
     "jupytext>=1.17.0",
     "jupyterthemes>=0.20.0",

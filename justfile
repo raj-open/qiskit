@@ -231,14 +231,6 @@ export name format="html" theme="light":
         --output-dir examples \
         notebooks/{{name}}.ipynb
 
-serve-notebooks:
-    #!/usr/bin/env bash
-    if [[ "{{OS}}" == "linux" ]]; then
-        ps aux | grep "uvicorn src.api:app"
-    else
-        netstat -ano | findstr "uvicorn src.api:app"
-    fi
-
 # --------------------------------
 # TARGETS: development
 # --------------------------------
