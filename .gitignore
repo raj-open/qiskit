@@ -11,6 +11,7 @@
 !/justfile
 !/pyproject.toml
 !/*.lock
+!/.pre-commit-config.*
 !/.coveragerc
 !/.behaverc
 !/.dockerignore
@@ -53,6 +54,7 @@
 !/tests
 !/tests/**/
 !/tests/**/*.py
+!/tests/**/*.feature
 !/tests/**/resources/**/
 !/tests/**/resources/**/*.yaml
 

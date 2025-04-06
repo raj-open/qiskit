@@ -1,0 +1,113 @@
+default_install_hook_types:
+  - commit-msg
+  - pre-commit
+  - pre-push
+
+fail_fast: true
+
+repos:
+  - repo: local
+    hooks:
+
+    - id: commit-message
+      name: Commit Message
+      description: |-
+        This hook ensures that commit messages conform to the schema.
+      # SIMPLER METHOD, but allows any branch name:
+      language: pygrep
+      args: [ '--negate' ]
+      entry: '^(Merge remote-tracking branch .* into .*)$|^(\S+(-\S+)* > \S+(-\S+)*:\s+\S+(\s*\S+)*)$'
+      verbose: true
+      stages: [ commit-msg ]
+
+  - repo: local
+    hooks:
+
+    - id: lint
+      name: Data Protection
+      description: |-
+        Ensures that private information is not committed.
+      files: '^.*\.ipynb$'
+      pass_filenames: true
+      language: system
+      args: []
+      entry: |-
+        bash -c '
+          set -e # ensures failure of block if at least one line fails
+          just clean-notebook "$0"
+          git add "$0" # add to commit
+        '
+      verbose: true
+      stages: [ pre-commit ]
+
+    - id: lint
+      name: Lint files
+      description: |-
+        This hook performs linting on files.
+      files: '^(src|tests|examples|notebooks)/.*\.(py|ipynb)$'
+      pass_filenames: true
+      language: system
+      args: []
+      entry: |-
+        bash -c '
+          set -e # ensures failure of block if at least one line fails
+          just lint "$0" # perform linting with changes
+          git add "$0" # add to commit
+        '
+      verbose: true
+      stages: [ pre-commit ]
+
+    - id: utests
+      name: Unit tests
+      description: |-
+        This hook performs checks to see if unit tests in this file pass.
+      files: '^tests/unit(/tests_[^/]+)*/tests_[^/]+\.py$'
+      pass_filenames: true
+      language: system
+      args: []
+      entry: |-
+        bash -c '
+          set -e # ensures failure of block if at least one line fails
+          just test-unit "$0"
+        '
+      verbose: true
+      stages: [ pre-commit ]
+
+    - id: btests
+      name: Behavioural tests
+      description: |-
+        This hook performs checks to see if behavioural tests in this file pass.
+      files: '^tests/behave/features/.*\.feature$'
+      pass_filenames: true
+      language: system
+      args: []
+      entry: |-
+        bash -c '
+          set -e # ensures failure of block if at least one line fails
+          echo "behavioural tests not yet implemented";
+        '
+      verbose: true
+      stages: [ pre-commit ]
+
+  - repo: local
+    hooks:
+
+    - id: qa
+      name: QA
+      description: |-
+        This hook performs QA on all files before a push.
+      files: '.*'
+      pass_filenames: false
+      language: system
+      args: []
+      entry: |-
+        bash -c '
+          set -e # ensures failure of block if at least one line fails
+          echo "build skipped - please run manually!";
+          just check-system-requirements
+          just prettify-dry
+          just tests-unit
+          echo "behavioural tests skipped - please run manually!";
+        '
+      verbose: true
+      stages: [ pre-push ]

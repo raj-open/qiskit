@@ -24,6 +24,7 @@ CURRENT_DIR := invocation_directory()
 OS := if os_family() == "windows" { "windows" } else { "linux" }
 PYVENV_ON := if os_family() == "windows" { ". .venv/Scripts/activate" } else { ". .venv/bin/activate" }
 PYVENV := if os_family() == "windows" { "python" } else { "python3" }
+GITHOOK_PRECOMMIT := "pre_commit"
 LINTING := "ruff"
 GEN_MODELS := "datamodel_code_generator"
 GEN_MODELS_DOCUMENTATION := "openapi-generator-cli"
@@ -142,10 +143,21 @@ build:
     @just build-requirements
     @just check-system-requirements
     @just build-models
+    @just build-githook-pc
 
 build-venv:
     @echo "create venv if not exists"
     @- ${PYTHON_PATH} -m venv .venv 2> /dev/null
+
+# cf. https://pre-commit.com
+build-githook-pc:
+    #!/usr/bin/env bash
+    echo "SUBTASK: build githook"
+    if [[ -d ".git" ]]; then
+        git config --unset-all core.hooksPath
+        {{PYVENV_ON}} && {{PYVENV}} -m pre_commit install
+    fi
+    exit 0;
 
 build-requirements:
     @just build-requirements-basic
@@ -364,10 +376,12 @@ lint-check path:
 prettify:
     @just lint "src"
     @just lint "tests"
+    @just lint "notebooks"
 
 prettify-dry:
     @just lint-dry "src"
     @just lint-dry "tests"
+    @just lint-dry "notebooks"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # TARGETS: clean
@@ -394,11 +408,11 @@ clean-venv:
     @echo "VENV will be removed."
     @- just _delete-if-folder-exists ".venv" 2> /dev/null
 
-clean-notebooks:
+clean-notebook path="**/*.ipynb":
     @echo "Clean python notebooks."
-    @{{PYVENV_ON}} && {{PYVENV}} -m jupyter nbconvert --clear-output --inplace **/*.ipynb
-    @- {{PYVENV_ON}} && {{PYVENV}} -m jupytext --update-metadata '{"vscode":""}' **/*.ipynb 2> /dev/null
-    @- {{PYVENV_ON}} && {{PYVENV}} -m jupytext --update-metadata '{"vscode":null}' **/*.ipynb 2> /dev/null
+    @{{PYVENV_ON}} && {{PYVENV}} -m jupyter nbconvert --clear-output --inplace "{{path}}"
+    @- {{PYVENV_ON}} && {{PYVENV}} -m jupytext --update-metadata '{"vscode":""}' "{{path}}" 2> /dev/null
+    @- {{PYVENV_ON}} && {{PYVENV}} -m jupytext --update-metadata '{"vscode":null}' "{{path}}" 2> /dev/null
 
 # --------------------------------
 # TARGETS: logging, session
@@ -458,6 +472,7 @@ check-system:
     @echo "Python path for venv:       $( {{PYVENV_ON}} && which {{PYVENV}} )"
 
 check-system-requirements:
+    @just _check-python-tool "{{GITHOOK_PRECOMMIT}}" "pre-commit"
     @just _check-python-tool "{{GEN_MODELS}}" "datamodel-code-generator"
     @just _check-tool "{{GEN_MODELS_DOCUMENTATION}}" "openapi-code-generator"
     @just _check-python-tool "{{LINTING}}" "{{LINTING}}"
